@@ -10,6 +10,9 @@ import sys
 from colorama import Fore, init
 from lxml import etree
 
+import testrail
+from testrail_utils import TestRailApiUtils
+
 if 'win' in sys.platform:
     init()
 
@@ -37,19 +40,48 @@ def get_testcases(xml_robotfwk_output):
     return result
 
 
-def update_testcases(run_id, plan_id):
-    pass
+def publish_results(api, testcases, run_id=0, plan_id=0):
+    """ Update testcases with provided Testrun or Testplan
+
+        :param api: Client to TestRail API
+        :param testcases: List of testcases with status, returned by `get_testcases`
+        :param run_id: TestRail ID of testrun to update
+        :param plan_id: TestRail ID of testplan to update
+    """
+    if run_id:
+        for testcase in testcases:
+            try:
+                api.add_result(run_id, testcase)
+            except testrail.APIError as error:
+                pretty_print_testcase(testcase, error)
+                print()
+
+    elif plan_id:
+        for run_id in api.get_available_testruns(plan_id):
+            publish_results(api, testcases, run_id=run_id)
+
+    else:
+        logging.error("You have to indicate a testrun or a testplan ID")
+        print(Fore.LIGHTRED_EX + 'ERROR')
+        sys.exit(1)
 
 
 def pretty_print(testcases):
-    """ Pretty print of testcases """
-    msg_template = '{id}\t{status}\t{name}'
+    """ Pretty print a list of testcases """
     for testcase in testcases:
-        if testcase['status'] == 'PASS':
-            print(Fore.GREEN + msg_template.format(**testcase), end='')
-        else:
-            print(Fore.RED + msg_template.format(**testcase), end='')
+        pretty_print_testcase(testcase)
         print(Fore.RESET)
+
+
+def pretty_print_testcase(testcase, error=False):
+    """ Pretty print a testcase """
+    msg_template = '{id}\t{status}\t{name}\t'
+    if error:
+        print(Fore.MAGENTA + msg_template.format(**testcase) + '=> ' + str(error), end=Fore.RESET)
+    elif testcase['status'] == 'PASS':
+        print(Fore.GREEN + msg_template.format(**testcase), end=Fore.RESET)
+    else:
+        print(Fore.LIGHTRED_EX + msg_template.format(**testcase), end=Fore.RESET)
 
 
 def options():
@@ -62,11 +94,13 @@ def options():
         help='XML output results of Robot Framework')
     parser.add_argument(
         '--config', type=argparse.FileType('r', encoding='UTF-8'), required=True, help='Configuration file')
-    parser.add_argument('--dryrun', action='store_false', help='Run script but don\'t publish results')
+    parser.add_argument('--dryrun', action='store_true', help='Run script but don\'t publish results')
     parser.add_argument('--password', help='Password of TestRail account')
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument('--run-id', action='store', default=0, help='Identifier of testrun, that appears in TestRail.')
-    group.add_argument('--plan-id', action='store', default=0, help='Identifier of testplan, that appears in TestRail.')
+    group.add_argument(
+        '--run-id', action='store', type=int, default=None, help='Identifier of testrun, that appears in TestRail.')
+    group.add_argument(
+        '--plan-id', action='store', type=int, default=None, help='Identifier of testplan, that appears in TestRail.')
     return parser.parse_args()
 
 
@@ -74,20 +108,30 @@ if __name__ == '__main__':
     # Manage options
     ARGUMENTS = options()
 
-    logging.debug('Command line arguments: %s', ARGUMENTS)
+    TESTCASES = get_testcases(ARGUMENTS.xml_robotfwk_output[0].name)
 
     if ARGUMENTS.dryrun:
-        testcases = get_testcases(ARGUMENTS.xml_robotfwk_output[0].name)
-        pretty_print(testcases)
+        pretty_print(TESTCASES)
+        print(Fore.GREEN + 'OK')
+        sys.exit()
 
     # Init global variables
-    config = configparser.ConfigParser()
-    config.read_file(ARGUMENTS.config)
-    URL = config.get('API', 'url')
-    EMAIL = config.get('API', 'email')
+    CONFIG = configparser.ConfigParser()
+    CONFIG.read_file(ARGUMENTS.config)
+    URL = CONFIG.get('API', 'url')
+    EMAIL = CONFIG.get('API', 'email')
     if ARGUMENTS.password:
         PASSWORD = ARGUMENTS.password
     else:
-        PASSWORD = config.get('API', 'password')
+        PASSWORD = CONFIG.get('API', 'password')
 
-    logging.debug('Connection info: URL={}, EMAIL={}, PASSWORD={}'.format(URL, EMAIL, len(PASSWORD) * '*'))
+    logging.debug('Connection info: URL=%s, EMAIL=%s, PASSWORD=%s', URL, EMAIL, len(PASSWORD) * '*')
+
+    # Init API
+    api = TestRailApiUtils(URL)
+    api.user = EMAIL
+    api.password = PASSWORD
+
+    # Main
+    publish_results(api, TESTCASES, run_id=ARGUMENTS.run_id, plan_id=ARGUMENTS.plan_id)
+    print(Fore.GREEN + 'OK')

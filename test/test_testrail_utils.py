@@ -65,16 +65,16 @@ def api():
     return inst
 
 
-def test_add_results(api):
+def test_add_result(api):    # pylint: disable=redefined-outer-name
     """ Test of method `add_results` """
-    api.add_results(1, TESTCASES)
-    assert api.send_post.call_count == 3
-    api.send_post.assert_any_call(tr.API_ADD_RESULT_CASE_URL.format(run_id=1, case_id=9876), {'status_id': 5})
-    api.send_post.assert_any_call(tr.API_ADD_RESULT_CASE_URL.format(run_id=1, case_id=344), {'status_id': 1})
-    api.send_post.assert_any_call(tr.API_ADD_RESULT_CASE_URL.format(run_id=1, case_id=1111), {'status_id': 1})
+    api.add_result(1, TESTCASES[0])
+    api.send_post.assert_called_once_with(tr.API_ADD_RESULT_CASE_URL.format(run_id=1, case_id=9876), {'status_id': 5})
+
+    api.add_result(1, TESTCASES[1])
+    api.send_post.assert_called_with(tr.API_ADD_RESULT_CASE_URL.format(run_id=1, case_id=344), {'status_id': 1})
 
 
-def test_is_testrun_available(api):
+def test_is_testrun_available(api):    # pylint: disable=redefined-outer-name
     """ Test of method `is_testrun_available` """
     api.send_get.return_value = {'is_completed': False}
     assert api.is_testrun_available(1) is True
@@ -86,7 +86,7 @@ def test_is_testrun_available(api):
     assert api.is_testrun_available(1) is False
 
 
-def test_is_testplan_available(api):
+def test_is_testplan_available(api):    # pylint: disable=redefined-outer-name
     """ Test of method `is_testplan_available` """
     api.send_get.return_value = {'is_completed': False}
     assert api.is_testplan_available(10) is True
@@ -98,7 +98,7 @@ def test_is_testplan_available(api):
     assert api.is_testplan_available(10) is False
 
 
-def test_get_available_testruns(api):
+def test_get_available_testruns(api):    # pylint: disable=redefined-outer-name
     """ Test of method `get_available_testruns` """
     api.send_get.return_value = TESTPLAN
     assert api.get_available_testruns(100) == [59, 61]

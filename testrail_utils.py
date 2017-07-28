@@ -18,17 +18,16 @@ ROBOTFWK_TO_TESTRAIL_STATUS = {
 class TestRailApiUtils(testrail.APIClient):
     """ Class adding facilities to manipulate Testrail API """
 
-    def add_results(self, testrun_id, testcases):
-        """ Add results one by one to improve errors handling.
+    def add_result(self, testrun_id, testcase_info):
+        """ Add a result to the given testrun
 
         :param testrun_id: Testrail ID of the testrun to feed
-        :param testcases: List of testcases with status
+        :param testcase_info: Dict containing info on testcase
 
         """
-        for testcase in testcases:
-            data = {'status_id': ROBOTFWK_TO_TESTRAIL_STATUS[testcase.get('status')]}
-            testcase_id = int(testcase['id'].replace('C', ''))
-            self.send_post(API_ADD_RESULT_CASE_URL.format(run_id=testrun_id, case_id=testcase_id), data)
+        data = {'status_id': ROBOTFWK_TO_TESTRAIL_STATUS[testcase_info.get('status')]}
+        testcase_id = int(testcase_info['id'].replace('C', ''))
+        return self.send_post(API_ADD_RESULT_CASE_URL.format(run_id=testrun_id, case_id=testcase_id), data)
 
     def is_testrun_available(self, testrun_id):
         """ Ask if testrun is available in TestRail.

@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
-""" Test of `robotframework2testrail` """
+""" Test of mod:`robotframework2testrail` """
 import os
 
-import pytest
 import robotframework2testrail
 
 RESULTS = [{
@@ -22,5 +21,6 @@ RESULTS = [{
 
 
 def test_get_testcases():
+    """ Test of function `get_testcases` """
     assert robotframework2testrail.get_testcases(
         os.path.join(robotframework2testrail.PATH, 'test', 'output.xml')) == RESULTS

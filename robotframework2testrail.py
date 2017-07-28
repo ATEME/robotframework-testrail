@@ -27,14 +27,13 @@ logging.getLogger().addHandler(CONSOLE_HANDLER)
 def get_testcases(xml_robotfwk_output):
     """ Return the list of Testcase ID with status """
     result = []
-    tree = etree.parse(xml_robotfwk_output)
-
-    for suite in tree.xpath('//suite[test and metadata]'):
-        testcase_id = suite.find('metadata/item[@name="TEST_CASE_ID"]').text
-        status = suite.find('test/status').get('status')
-        name = suite.get('name')
-        result.append({'id': testcase_id, 'status': status, 'name': name})
-
+    for _, suite in etree.iterparse(xml_robotfwk_output, tag='suite'):
+        testcase_id = suite.find('metadata/item[@name="TEST_CASE_ID"]')
+        if testcase_id is not None and suite.find('test/status') is not None:
+            status = suite.find('test/status').get('status')
+            name = suite.get('name')
+            result.append({'id': testcase_id.text, 'status': status, 'name': name})
+        suite.clear()    # Memory optimization: see https://www.ibm.com/developerworks/library/x-hiperfparse/index.html
     return result
 
 
@@ -78,7 +77,7 @@ if __name__ == '__main__':
     logging.debug('Command line arguments: %s', ARGUMENTS)
 
     if ARGUMENTS.dryrun:
-        testcases = get_testcases(ARGUMENTS.xml_robotfwk_output[0])
+        testcases = get_testcases(ARGUMENTS.xml_robotfwk_output[0].name)
         pretty_print(testcases)
 
     # Init global variables

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot generated="20170725 10:57:47.929" generator="Robot 3.0.2 (Python 2.7.13 on win32)">
+	<suite source="C:\work\rfw_testrail\test" id="s1" name="Test">
+		<suite source="C:\work\rfw_testrail\test\folder" id="s1-s1" name="Folder">
+			<suite source="C:\work\rfw_testrail\test\folder\Testrail2.robot" id="s1-s1-s1" name="Testrail2">
+				<test id="s1-s1-s1-t1" name="Test KO">
+					<kw name="Log" library="BuiltIn">
+						<doc>Logs the given message with the given level.</doc>
+						<arguments>
+							<arg>Test KO</arg>
+						</arguments>
+						<msg timestamp="20170725 10:57:48.029" level="INFO">Test KO</msg>
+						<status status="PASS" endtime="20170725 10:57:48.029" starttime="20170725 10:57:48.029"/>
+					</kw>
+					<kw name="Fail" library="BuiltIn">
+						<doc>Fails the test with the given message and optionally alters its tags.</doc>
+						<msg timestamp="20170725 10:57:48.029" level="FAIL">AssertionError</msg>
+						<status status="FAIL" endtime="20170725 10:57:48.029" starttime="20170725 10:57:48.029"/>
+					</kw>
+					<status status="FAIL" endtime="20170725 10:57:48.029" critical="yes" starttime="20170725 10:57:48.029">AssertionError</status>
+				</test>
+				<metadata>
+					<item name="TEST_CASE_ID">C9876</item>
+				</metadata>
+				<status status="FAIL" endtime="20170725 10:57:48.029" starttime="20170725 10:57:48.014"/>
+			</suite>
+			<metadata>
+				<item name="TEST_CASE_ID">C123456</item>
+			</metadata>
+			<status status="FAIL" endtime="20170725 10:57:48.029" starttime="20170725 10:57:48.014"/>
+		</suite>
+		<suite source="C:\work\rfw_testrail\test\testrail.robot" id="s1-s2" name="Testrail">
+			<test id="s1-s2-t1" name="Test OK">
+				<kw name="Log" library="BuiltIn">
+					<doc>Logs the given message with the given level.</doc>
+					<arguments>
+						<arg>${SUITE METADATA['TEST_CASE_ID']}</arg>
+					</arguments>
+					<msg timestamp="20170725 10:57:48.029" level="INFO">C344</msg>
+					<status status="PASS" endtime="20170725 10:57:48.029" starttime="20170725 10:57:48.029"/>
+				</kw>
+				<status status="PASS" endtime="20170725 10:57:48.029" critical="yes" starttime="20170725 10:57:48.029"/>
+			</test>
+			<metadata>
+				<item name="TEST_CASE_ID">C344</item>
+			</metadata>
+			<status status="PASS" endtime="20170725 10:57:48.029" starttime="20170725 10:57:48.029"/>
+		</suite>
+		<suite source="C:\work\rfw_testrail\test\Testrail3.robot" id="s1-s3" name="Testrail3">
+			<test id="s1-s3-t1" name="Test Skip">
+				<kw name="Pass Execution" library="BuiltIn">
+					<doc>Skips rest of the current test, setup, or teardown with PASS status.</doc>
+					<arguments>
+						<arg>Skipped!</arg>
+					</arguments>
+					<msg timestamp="20170725 10:57:48.045" level="INFO">Execution passed with message:
+Skipped!</msg>
+					<status status="PASS" endtime="20170725 10:57:48.045" starttime="20170725 10:57:48.045"/>
+				</kw>
+				<status status="PASS" endtime="20170725 10:57:48.045" critical="yes" starttime="20170725 10:57:48.029">Skipped!</status>
+			</test>
+			<metadata>
+				<item name="TEST_CASE_ID">C1111</item>
+			</metadata>
+			<status status="PASS" endtime="20170725 10:57:48.045" starttime="20170725 10:57:48.029"/>
+		</suite>
+		<status status="FAIL" endtime="20170725 10:57:48.045" starttime="20170725 10:57:47.982"/>
+	</suite>
+	<statistics>
+		<total>
+			<stat fail="1" pass="2">Critical Tests</stat>
+			<stat fail="1" pass="2">All Tests</stat>
+		</total>
+		<tag>
+		</tag>
+		<suite>
+			<stat fail="1" id="s1" name="Test" pass="2">Test</stat>
+			<stat fail="1" id="s1-s1" name="Folder" pass="0">Test.Folder</stat>
+			<stat fail="1" id="s1-s1-s1" name="Testrail2" pass="0">Test.Folder.Testrail2</stat>
+			<stat fail="0" id="s1-s2" name="Testrail" pass="1">Test.Testrail</stat>
+			<stat fail="0" id="s1-s3" name="Testrail3" pass="1">Test.Testrail3</stat>
+		</suite>
+	</statistics>
+	<errors>
+	</errors>
+</robot>

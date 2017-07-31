@@ -13,8 +13,6 @@ from lxml import etree
 import testrail
 from testrail_utils import TestRailApiUtils
 
-
-
 PATH = os.path.abspath(os.path.dirname(__file__))
 
 # Configure the logging
@@ -125,7 +123,7 @@ def options():
 
 if __name__ == '__main__':
     # Global init
-    init() # colorama
+    init()    # colorama
 
     # Manage options
     ARGUMENTS = options()

@@ -79,7 +79,7 @@ def test_is_testrun_available(api):    # pylint: disable=redefined-outer-name
     api.send_get.return_value = {'is_completed': False}
     assert api.is_testrun_available(1) is True
 
-    api.send_get.side_effect = APIError('Testrun not found')
+    api.send_get.side_effect = APIError('Test Run not found')
     assert api.is_testrun_available(1) is False
 
     api.send_get.return_value = {'is_completed': True}
@@ -91,7 +91,7 @@ def test_is_testplan_available(api):    # pylint: disable=redefined-outer-name
     api.send_get.return_value = {'is_completed': False}
     assert api.is_testplan_available(10) is True
 
-    api.send_get.side_effect = APIError('Testplan not found')
+    api.send_get.side_effect = APIError('Test Plan not found')
     assert api.is_testplan_available(10) is False
 
     api.send_get.return_value = {'is_completed': True}

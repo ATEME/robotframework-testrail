@@ -7,15 +7,13 @@ import logging
 import os
 import sys
 
-from colorama import Fore, init
-from colorama import Style
+from colorama import Fore, Style, init
 from lxml import etree
 
 import testrail
 from testrail_utils import TestRailApiUtils
 
-if 'win' in sys.platform:
-    init()
+
 
 PATH = os.path.abspath(os.path.dirname(__file__))
 
@@ -31,7 +29,7 @@ logging.getLogger().addHandler(CONSOLE_HANDLER)
 def get_testcases(xml_robotfwk_output):
     """ Return the list of Testcase ID with status """
     result = []
-    for _, suite in etree.iterparse(xml_robotfwk_output, tag='suite'):
+    for _, suite in etree.iterparse(xml_robotfwk_output, tag='suite'):    # pylint: disable=no-member
         testcase_id = suite.find('metadata/item[@name="TEST_CASE_ID"]')
         if testcase_id is not None and suite.find('test/status') is not None:
             status = suite.find('test/status').get('status')
@@ -42,12 +40,12 @@ def get_testcases(xml_robotfwk_output):
 
 
 def publish_results(api, testcases, run_id=0, plan_id=0):
-    """ Update testcases with provided Testrun or Testplan
+    """ Update testcases with provided Test Run or Test Plan
 
         :param api: Client to TestRail API
         :param testcases: List of testcases with status, returned by `get_testcases`
-        :param run_id: TestRail ID of testrun to update
-        :param plan_id: TestRail ID of testplan to update
+        :param run_id: TestRail ID of Test Run to update
+        :param plan_id: TestRail ID of Test Plan to update
         :return: True if publishing was done. False in case of error.
     """
     if run_id:
@@ -60,21 +58,21 @@ def publish_results(api, testcases, run_id=0, plan_id=0):
                 except testrail.APIError as error:
                     pretty_print_testcase(testcase, str(error))
                     print()
-            logging.info('%d result(s) published in Testrun #%d.', count, run_id)
+            logging.info('%d result(s) published in Test Run #%d.', count, run_id)
         else:
-            logging.error('Testrun #%d is is not available', run_id)
+            logging.error('Test Run #%d is is not available', run_id)
             return False
 
     elif plan_id:
         if api.is_testplan_available(plan_id):
-            for run_id in api.get_available_testruns(plan_id):
-                publish_results(api, testcases, run_id=run_id)
+            for _run_id in api.get_available_testruns(plan_id):
+                publish_results(api, testcases, run_id=_run_id)
         else:
-            logging.error('Testplan #%d is is not available', plan_id)
+            logging.error('Test Plan #%d is is not available', plan_id)
             return False
 
     else:
-        logging.error("You have to indicate a testrun or a testplan ID")
+        logging.error("You have to indicate a Test Run or a Test Plan ID")
         print(Fore.LIGHTRED_EX + 'ERROR')
         return False
 
@@ -116,16 +114,19 @@ def options():
     parser.add_argument(
         '--config', type=argparse.FileType('r', encoding='UTF-8'), required=True, help='Configuration file')
     parser.add_argument('--dryrun', action='store_true', help='Run script but don\'t publish results')
-    parser.add_argument('--password', help='Password of TestRail account')
+    parser.add_argument('--api-key', help='API key of TestRail account with write access')
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument(
-        '--run-id', action='store', type=int, default=None, help='Identifier of testrun, that appears in TestRail.')
+        '--run-id', action='store', type=int, default=None, help='Identifier of Test Run, that appears in TestRail.')
     group.add_argument(
-        '--plan-id', action='store', type=int, default=None, help='Identifier of testplan, that appears in TestRail.')
+        '--plan-id', action='store', type=int, default=None, help='Identifier of Test Plan, that appears in TestRail.')
     return parser.parse_args()
 
 
 if __name__ == '__main__':
+    # Global init
+    init() # colorama
+
     # Manage options
     ARGUMENTS = options()
 
@@ -140,21 +141,21 @@ if __name__ == '__main__':
     CONFIG = configparser.ConfigParser()
     CONFIG.read_file(ARGUMENTS.config)
     URL = CONFIG.get('API', 'url')
-    EMAIL = CONFIG.get('API', 'email')
-    if ARGUMENTS.password:
-        PASSWORD = ARGUMENTS.password
+    USER = CONFIG.get('API', 'user')
+    if ARGUMENTS.api_key:
+        API_KEY = ARGUMENTS.api_key
     else:
-        PASSWORD = CONFIG.get('API', 'password')
+        API_KEY = CONFIG.get('API', 'api_key')
 
-    logging.debug('Connection info: URL=%s, EMAIL=%s, PASSWORD=%s', URL, EMAIL, len(PASSWORD) * '*')
+    logging.debug('Connection info: URL=%s, EMAIL=%s, PASSWORD=%s', URL, USER, len(API_KEY) * '*')
 
     # Init API
-    api = TestRailApiUtils(URL)
-    api.user = EMAIL
-    api.password = PASSWORD
+    API = TestRailApiUtils(URL)
+    API.user = USER
+    API.password = API_KEY
 
     # Main
-    if publish_results(api, TESTCASES, run_id=ARGUMENTS.run_id, plan_id=ARGUMENTS.plan_id):
+    if publish_results(API, TESTCASES, run_id=ARGUMENTS.run_id, plan_id=ARGUMENTS.plan_id):
         print(Fore.GREEN + 'OK')
         sys.exit()
     else:

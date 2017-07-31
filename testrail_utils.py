@@ -20,9 +20,9 @@ class TestRailApiUtils(testrail.APIClient):
     """ Class adding facilities to manipulate Testrail API """
 
     def add_result(self, testrun_id, testcase_info):
-        """ Add a result to the given testrun
+        """ Add a result to the given Test Run
 
-        :param testrun_id: Testrail ID of the testrun to feed
+        :param testrun_id: Testrail ID of the Test Run to feed
         :param testcase_info: Dict containing info on testcase
 
         """
@@ -35,10 +35,10 @@ class TestRailApiUtils(testrail.APIClient):
         return self.send_post(API_ADD_RESULT_CASE_URL.format(run_id=testrun_id, case_id=testcase_id), data)
 
     def is_testrun_available(self, testrun_id):
-        """ Ask if testrun is available in TestRail.
+        """ Ask if Test Run is available in TestRail.
 
-        :param testplan_id: Testrail ID of the testrun
-        :return: True if testrun exists AND is open
+        :param testplan_id: Testrail ID of the Test Run
+        :return: True if Test Run exists AND is open
         """
         try:
             response = self.send_get(API_GET_RUN_URL.format(run_id=testrun_id))
@@ -48,10 +48,10 @@ class TestRailApiUtils(testrail.APIClient):
             return False
 
     def is_testplan_available(self, testplan_id):
-        """ Ask if testplan is available in TestRail.
+        """ Ask if Test Plan is available in TestRail.
 
-        :param testplan_id: Testrail ID of the testplan
-        :return: True if testplan exists AND is open
+        :param testplan_id: Testrail ID of the Test Plan
+        :return: True if Test Plan exists AND is open
         """
         try:
             response = self.send_get(API_GET_PLAN_URL.format(plan_id=testplan_id))
@@ -61,10 +61,10 @@ class TestRailApiUtils(testrail.APIClient):
             return False
 
     def get_available_testruns(self, testplan_id):
-        """ Get the list of available testruns contained in a testplan
+        """ Get the list of available Test Runs contained in a Test Plan
 
-        :param testplan_id: Testrail ID of the testplan
-        :return: List of available testruns associated to a testplan in TestRail.
+        :param testplan_id: Testrail ID of the Test Plan
+        :return: List of available Test Runs associated to a Test Plan in TestRail.
         """
         testruns_list = []
         response = self.send_get(API_GET_PLAN_URL.format(plan_id=testplan_id))

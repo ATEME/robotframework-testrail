@@ -8,6 +8,7 @@ import os
 import sys
 
 from colorama import Fore, init
+from colorama import Style
 from lxml import etree
 
 import testrail
@@ -47,23 +48,37 @@ def publish_results(api, testcases, run_id=0, plan_id=0):
         :param testcases: List of testcases with status, returned by `get_testcases`
         :param run_id: TestRail ID of testrun to update
         :param plan_id: TestRail ID of testplan to update
+        :return: True if publishing was done. False in case of error.
     """
     if run_id:
-        for testcase in testcases:
-            try:
-                api.add_result(run_id, testcase)
-            except testrail.APIError as error:
-                pretty_print_testcase(testcase, error)
-                print()
+        if api.is_testrun_available(run_id):
+            count = 0
+            for testcase in testcases:
+                try:
+                    api.add_result(run_id, testcase)
+                    count += 1
+                except testrail.APIError as error:
+                    pretty_print_testcase(testcase, str(error))
+                    print()
+            logging.info('%d result(s) published in Testrun #%d.', count, run_id)
+        else:
+            logging.error('Testrun #%d is is not available', run_id)
+            return False
 
     elif plan_id:
-        for run_id in api.get_available_testruns(plan_id):
-            publish_results(api, testcases, run_id=run_id)
+        if api.is_testplan_available(plan_id):
+            for run_id in api.get_available_testruns(plan_id):
+                publish_results(api, testcases, run_id=run_id)
+        else:
+            logging.error('Testplan #%d is is not available', plan_id)
+            return False
 
     else:
         logging.error("You have to indicate a testrun or a testplan ID")
         print(Fore.LIGHTRED_EX + 'ERROR')
-        sys.exit(1)
+        return False
+
+    return True
 
 
 def pretty_print(testcases):
@@ -73,15 +88,21 @@ def pretty_print(testcases):
         print(Fore.RESET)
 
 
-def pretty_print_testcase(testcase, error=False):
+def pretty_print_testcase(testcase, error=''):
     """ Pretty print a testcase """
-    msg_template = '{id}\t{status}\t{name}\t'
     if error:
-        print(Fore.MAGENTA + msg_template.format(**testcase) + '=> ' + str(error), end=Fore.RESET)
+        msg_template = Style.BRIGHT + '{id}' + Style.RESET_ALL + '\t' + \
+                       Fore.MAGENTA + '{status}' + Fore.RESET + '\t' + \
+                       '{name}\t=> ' + str(error)
     elif testcase['status'] == 'PASS':
-        print(Fore.GREEN + msg_template.format(**testcase), end=Fore.RESET)
+        msg_template = Style.BRIGHT + '{id}' + Style.RESET_ALL + '\t' + \
+                       Fore.LIGHTGREEN_EX + '{status}' + Fore.RESET + '\t' + \
+                       '{name}\t'
     else:
-        print(Fore.LIGHTRED_EX + msg_template.format(**testcase), end=Fore.RESET)
+        msg_template = Style.BRIGHT + '{id}' + Style.RESET_ALL + '\t' + \
+                       Fore.LIGHTRED_EX + '{status}' + Fore.RESET + '\t' + \
+                       '{name}\t'
+    print(msg_template.format(**testcase), end=Style.RESET_ALL)
 
 
 def options():
@@ -133,5 +154,9 @@ if __name__ == '__main__':
     api.password = PASSWORD
 
     # Main
-    publish_results(api, TESTCASES, run_id=ARGUMENTS.run_id, plan_id=ARGUMENTS.plan_id)
-    print(Fore.GREEN + 'OK')
+    if publish_results(api, TESTCASES, run_id=ARGUMENTS.run_id, plan_id=ARGUMENTS.plan_id):
+        print(Fore.GREEN + 'OK')
+        sys.exit()
+    else:
+        print(Fore.LIGHTRED_EX + 'ERROR')
+        sys.exit(1)

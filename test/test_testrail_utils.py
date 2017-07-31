@@ -102,3 +102,16 @@ def test_get_available_testruns(api):    # pylint: disable=redefined-outer-name
     """ Test of method `get_available_testruns` """
     api.send_get.return_value = TESTPLAN
     assert api.get_available_testruns(100) == [59, 61]
+
+
+def test_extract_testcase_id(api):    # pylint: disable=redefined-outer-name
+    """ Test of method `extract_testcase_id` """
+    assert api.extract_testcase_id('C1234') == 1234
+    assert api.extract_testcase_id('c1234') == 1234
+    assert api.extract_testcase_id('C1234 C9874') == 1234
+    assert api.extract_testcase_id('1234') == 1234
+
+    # Error cases
+    assert api.extract_testcase_id('') is None
+    assert api.extract_testcase_id('test') is None
+    assert api.extract_testcase_id('test C1234') is None

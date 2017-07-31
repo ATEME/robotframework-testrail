@@ -2,6 +2,7 @@
 # -*- coding: UTF-8 -*-
 """ Various useful class using TestRail API """
 import logging
+import string
 
 import testrail
 
@@ -26,7 +27,11 @@ class TestRailApiUtils(testrail.APIClient):
 
         """
         data = {'status_id': ROBOTFWK_TO_TESTRAIL_STATUS[testcase_info.get('status')]}
-        testcase_id = int(testcase_info['id'].replace('C', ''))
+        testcase_id = self.extract_testcase_id(testcase_info['id'])
+        if not testcase_id:
+            logging.error('Testcase ID is bad formatted: "%s"', testcase_info['id'])
+            return None
+
         return self.send_post(API_ADD_RESULT_CASE_URL.format(run_id=testrun_id, case_id=testcase_id), data)
 
     def is_testrun_available(self, testrun_id):
@@ -68,3 +73,24 @@ class TestRailApiUtils(testrail.APIClient):
                 if not run['is_completed']:
                     testruns_list.append(run['id'])
         return testruns_list
+
+    @staticmethod
+    def extract_testcase_id(str_content):
+        """ Extract testcase ID (TestRail) from the given string.
+
+            :param str_content: String containing a testcase ID.
+            :return: Testcase ID (int). `None` if not found.
+        """
+        testcase_id = None
+
+        # Manage multiple value but take only the first chunk
+        list_content = str_content.split()
+        if list_content:
+            first_chunk = list_content[0]
+            try:
+                testcase_id_str = ''.join(char for char in first_chunk if char in string.digits)
+                testcase_id = int(testcase_id_str)
+            except (TypeError, ValueError) as error:
+                logging.error(error)
+
+        return testcase_id

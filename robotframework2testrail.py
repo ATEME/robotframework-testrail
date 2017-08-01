@@ -145,7 +145,7 @@ if __name__ == '__main__':
     else:
         API_KEY = CONFIG.get('API', 'api_key')
 
-    logging.debug('Connection info: URL=%s, EMAIL=%s, PASSWORD=%s', URL, USER, len(API_KEY) * '*')
+    logging.debug('Connection info: URL=%s, USER=%s, API-KEY=%s', URL, USER, len(API_KEY) * '*')
 
     # Init API
     API = TestRailApiUtils(URL)

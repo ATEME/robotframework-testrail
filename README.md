@@ -50,7 +50,7 @@ Create a configuration file (`testrail.cfg` for instance) containing following p
 ```ini
 [API]
 url = https://yoururl.testrail.net/
-email = user@email.com
+user = user@email.com
 api_key = <api_key> # May be set in command line
 ```
 

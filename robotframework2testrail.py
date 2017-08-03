@@ -8,6 +8,7 @@ import os
 import sys
 import xml.etree.ElementTree as etree
 
+import time
 from colorama import Fore, Style, init
 
 import testrail
@@ -64,6 +65,7 @@ def publish_results(api, testcases, run_id=0, plan_id=0, version=''):
                     if 'No (active) test found for the run/case combination' not in str(error):
                         pretty_print_testcase(testcase, str(error))
                         print()
+                time.sleep(0.5)
             logging.info('%d result(s) published in Test Run #%d.', count, run_id)
         else:
             logging.error('Test Run #%d is is not available', run_id)

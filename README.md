@@ -98,7 +98,7 @@ python robotframework2testrail.py --config=testrail.cfg --run-id=196 output.xml
 python robotframework2testrail.py --config=testrail.cfg --plan-id=200 output.xml
 
 # Publish in Test Plan #200 with version '1.0.2'
-python robotframework2testrail.py --config=testrail.cfg --plan-id=200 --version 1.0.2 output.xml
+python robotframework2testrail.py --config=testrail.cfg --plan-id=200 --version=1.0.2 output.xml
 
 # Publish with api key in command line
 python robotframework2testrail.py --config=testrail.cfg --api-key azertyazertyqsdfqsdf --plan-id=200 output.xml

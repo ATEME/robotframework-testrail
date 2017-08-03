@@ -17,7 +17,7 @@ PATH = os.path.abspath(os.path.dirname(__file__))
 
 # Configure the logging
 LOG_FORMAT = '%(asctime)-15s %(levelname)-10s %(message)s'
-logging.basicConfig(filename=os.path.join(PATH, 'install.log'), format=LOG_FORMAT, level=logging.DEBUG)
+logging.basicConfig(filename=os.path.join(PATH, 'robotframwork2testrail.log'), format=LOG_FORMAT, level=logging.DEBUG)
 CONSOLE_HANDLER = logging.StreamHandler()
 CONSOLE_HANDLER.setLevel(logging.INFO)
 CONSOLE_HANDLER.setFormatter(logging.Formatter('%(message)s'))
@@ -58,9 +58,12 @@ def publish_results(api, testcases, run_id=0, plan_id=0, version=''):
                 try:
                     api.add_result(run_id, testcase)
                     count += 1
-                except testrail.APIError as error:
-                    pretty_print_testcase(testcase, str(error))
+                    pretty_print_testcase(testcase)
                     print()
+                except testrail.APIError as error:
+                    if 'No (active) test found for the run/case combination' not in str(error):
+                        pretty_print_testcase(testcase, str(error))
+                        print()
             logging.info('%d result(s) published in Test Run #%d.', count, run_id)
         else:
             logging.error('Test Run #%d is is not available', run_id)
@@ -69,7 +72,7 @@ def publish_results(api, testcases, run_id=0, plan_id=0, version=''):
     elif plan_id:
         if api.is_testplan_available(plan_id):
             for _run_id in api.get_available_testruns(plan_id):
-                publish_results(api, testcases, run_id=_run_id)
+                publish_results(api, testcases, run_id=_run_id, version=version)
         else:
             logging.error('Test Plan #%d is is not available', plan_id)
             return False

@@ -6,9 +6,9 @@ import configparser
 import logging
 import os
 import sys
+import xml.etree.ElementTree as etree
 
 from colorama import Fore, Style, init
-from lxml import etree
 
 import testrail
 from testrail_utils import TestRailApiUtils
@@ -27,29 +27,34 @@ logging.getLogger().addHandler(CONSOLE_HANDLER)
 def get_testcases(xml_robotfwk_output):
     """ Return the list of Testcase ID with status """
     result = []
-    for _, suite in etree.iterparse(xml_robotfwk_output, tag='suite'):    # pylint: disable=no-member
-        testcase_id = suite.find('metadata/item[@name="TEST_CASE_ID"]')
-        if testcase_id is not None and suite.find('test/status') is not None:
-            status = suite.find('test/status').get('status')
-            name = suite.get('name')
-            result.append({'id': testcase_id.text, 'status': status, 'name': name})
-        suite.clear()    # Memory optimization: see https://www.ibm.com/developerworks/library/x-hiperfparse/index.html
+    for _, elem in etree.iterparse(xml_robotfwk_output):    # pylint: disable=no-member
+        if elem.tag == 'suite':
+            testcase_id = elem.find('metadata/item[@name="TEST_CASE_ID"]')
+            if testcase_id is not None and elem.find('test/status') is not None:
+                status = elem.find('test/status').get('status')
+                name = elem.get('name')
+                result.append({'id': testcase_id.text, 'status': status, 'name': name})
+            # Memory optimization: see https://www.ibm.com/developerworks/library/x-hiperfparse/index.html
+            elem.clear()
     return result
 
 
-def publish_results(api, testcases, run_id=0, plan_id=0):
+def publish_results(api, testcases, run_id=0, plan_id=0, version=''):
     """ Update testcases with provided Test Run or Test Plan
 
         :param api: Client to TestRail API
         :param testcases: List of testcases with status, returned by `get_testcases`
         :param run_id: TestRail ID of Test Run to update
         :param plan_id: TestRail ID of Test Plan to update
+        :param version: Version to indicate in Test Case result
         :return: True if publishing was done. False in case of error.
     """
     if run_id:
         if api.is_testrun_available(run_id):
             count = 0
             for testcase in testcases:
+                if version:
+                    testcase['version'] = version
                 try:
                     api.add_result(run_id, testcase)
                     count += 1
@@ -110,14 +115,15 @@ def options():
         type=argparse.FileType('r', encoding='UTF-8'),
         help='XML output results of Robot Framework')
     parser.add_argument(
-        '--config', type=argparse.FileType('r', encoding='UTF-8'), required=True, help='Configuration file')
-    parser.add_argument('--dryrun', action='store_true', help='Run script but don\'t publish results')
-    parser.add_argument('--api-key', help='API key of TestRail account with write access')
+        '--config', type=argparse.FileType('r', encoding='UTF-8'), required=True, help='TestRail configuration file.')
+    parser.add_argument('--dryrun', action='store_true', help='Run script but don\'t publish results.')
+    parser.add_argument('--api-key', help='API key of TestRail account with write access.')
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument(
         '--run-id', action='store', type=int, default=None, help='Identifier of Test Run, that appears in TestRail.')
     group.add_argument(
         '--plan-id', action='store', type=int, default=None, help='Identifier of Test Plan, that appears in TestRail.')
+    parser.add_argument('--version', help='Indicate a version in Test Case result.')
     return parser.parse_args()
 
 
@@ -140,6 +146,7 @@ if __name__ == '__main__':
     CONFIG.read_file(ARGUMENTS.config)
     URL = CONFIG.get('API', 'url')
     USER = CONFIG.get('API', 'user')
+    VERSION = ARGUMENTS.version
     if ARGUMENTS.api_key:
         API_KEY = ARGUMENTS.api_key
     else:
@@ -153,9 +160,9 @@ if __name__ == '__main__':
     API.password = API_KEY
 
     # Main
-    if publish_results(API, TESTCASES, run_id=ARGUMENTS.run_id, plan_id=ARGUMENTS.plan_id):
-        print(Fore.GREEN + 'OK')
+    if publish_results(API, TESTCASES, run_id=ARGUMENTS.run_id, plan_id=ARGUMENTS.plan_id, version=VERSION):
+        print(Fore.GREEN + 'OK' + Fore.RESET)
         sys.exit()
     else:
-        print(Fore.LIGHTRED_EX + 'ERROR')
+        print(Fore.LIGHTRED_EX + 'ERROR' + Fore.RESET)
         sys.exit(1)

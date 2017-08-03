@@ -12,11 +12,15 @@ Robot Framework execution => `output.xml` => This script => TestRail API
 Installation
 ------------
 
-Best use with `virtualenv` with Python>=3:
+Tested with Python>=3.
+
+Best use with `virtualenv` (to adapt according your Python/OS version):
     
-    > virtualenv .
-    > Scripts\activate  # Windows case
-    > pip install -r requirements.txt
+```cmd
+> virtualenv .
+> Scripts\activate  # Windows case
+> pip install -r requirements.txt
+```
 
 
 Configuration
@@ -54,6 +58,8 @@ user = user@email.com
 api_key = <api_key> # May be set in command line
 ```
 
+**Note** : `api_key` should be generated with your TestRail account in "My Settings" section.
+
 Usage
 -----
 
@@ -61,6 +67,7 @@ Usage
 usage: robotframework2testrail.py [-h] --config CONFIG [--dryrun]
                                   [--api-key API_KEY]
                                   (--run-id RUN_ID | --plan-id PLAN_ID)
+                                  [--version VERSION]
                                   xml_robotfwk_output
 
 Tool to publish Robot Framework results in TestRail
@@ -75,6 +82,7 @@ optional arguments:
   --api-key API_KEY    API key of TestRail account with write access
   --run-id RUN_ID      Identifier of Test Run, that appears in TestRail.
   --plan-id PLAN_ID    Identifier of Test Plan, that appears in TestRail.
+  --version VERSION    Indicate a version in Test Case result.
 ```
 
 ### Example
@@ -88,6 +96,9 @@ python robotframework2testrail.py --config=testrail.cfg --run-id=196 output.xml
 
 # Publish in Test Plan #200
 python robotframework2testrail.py --config=testrail.cfg --plan-id=200 output.xml
+
+# Publish in Test Plan #200 with version '1.0.2'
+python robotframework2testrail.py --config=testrail.cfg --plan-id=200 --version 1.0.2 output.xml
 
 # Publish with api key in command line
 python robotframework2testrail.py --config=testrail.cfg --api-key azertyazertyqsdfqsdf --plan-id=200 output.xml

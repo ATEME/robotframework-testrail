@@ -27,6 +27,8 @@ class TestRailApiUtils(testrail.APIClient):
 
         """
         data = {'status_id': ROBOTFWK_TO_TESTRAIL_STATUS[testcase_info.get('status')]}
+        if 'version' in testcase_info:
+            data['version'] = testcase_info.get('version')
         testcase_id = self.extract_testcase_id(testcase_info['id'])
         if not testcase_id:
             logging.error('Testcase ID is bad formatted: "%s"', testcase_info['id'])

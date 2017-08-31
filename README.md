@@ -54,52 +54,53 @@ Create a configuration file (`testrail.cfg` for instance) containing following p
 ```ini
 [API]
 url = https://yoururl.testrail.net/
-user = user@email.com
-api_key = <api_key> # May be set in command line
+email = user@email.com
+password = <api_key> # May be set in command line
 ```
 
-**Note** : `api_key` should be generated with your TestRail account in "My Settings" section.
+**Note** : `password` is an API key that should be generated with your TestRail account in "My Settings" section.
 
 Usage
 -----
 
 ```
-usage: robotframework2testrail.py [-h] --config CONFIG [--dryrun]
-                                  [--api-key API_KEY]
+usage: robotframework2testrail.py [-h] --testrail CONFIG [--dryrun]
+                                  [--password API_KEY]
                                   (--run-id RUN_ID | --plan-id PLAN_ID)
-                                  [--version VERSION]
+                                  [--tr-version VERSION]
                                   xml_robotfwk_output
 
 Tool to publish Robot Framework results in TestRail
 
 positional arguments:
-  xml_robotfwk_output  XML output results of Robot Framework
+  xml_robotfwk_output   XML output results of Robot Framework
 
 optional arguments:
-  -h, --help           show this help message and exit
-  --config CONFIG      Configuration file
-  --dryrun             Run script but don't publish results
-  --api-key API_KEY    API key of TestRail account with write access
-  --run-id RUN_ID      Identifier of Test Run, that appears in TestRail.
-  --plan-id PLAN_ID    Identifier of Test Plan, that appears in TestRail.
-  --version VERSION    Indicate a version in Test Case result.
+  -h, --help            show this help message and exit
+  --testrail CONFIG     TestRail configuration file.
+  --dryrun              Run script but don't publish results.
+  --password API_KEY    API key of TestRail account with write access.
+  --run-id RUN_ID       Identifier of Test Run, that appears in TestRail.
+  --plan-id PLAN_ID     Identifier of Test Plan, that appears in TestRail.
+  --tr-version VERSION  Indicate a version in Test Case result.
 ```
 
 ### Example
 
 ```bash
 # Dry run
-python robotframework2testrail.py --config=testrail.cfg --dryrun --run-id=196 output.xml
+python robotframework2testrail.py --testrail=testrail.cfg --dryrun --run-id=196 output.xml
 
 # Publish in Test Run #196
-python robotframework2testrail.py --config=testrail.cfg --run-id=196 output.xml
+python robotframework2testrail.py --testrail=testrail.cfg --run-id=196 output.xml
 
 # Publish in Test Plan #200
-python robotframework2testrail.py --config=testrail.cfg --plan-id=200 output.xml
+python robotframework2testrail.py --testrail=testrail.cfg --plan-id=200 output.xml
 
 # Publish in Test Plan #200 with version '1.0.2'
-python robotframework2testrail.py --config=testrail.cfg --plan-id=200 --version=1.0.2 output.xml
+python robotframework2testrail.py --testrail=testrail.cfg --plan-id=200 --tr-version=1.0.2 output.xml
 
 # Publish with api key in command line
-python robotframework2testrail.py --config=testrail.cfg --api-key azertyazertyqsdfqsdf --plan-id=200 output.xml
+python robotframework2testrail.py --testrail=testrail.cfg --password azertyazertyqsdfqsdf --plan-id=200 output.xml
+
 ```

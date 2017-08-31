@@ -120,16 +120,23 @@ def options():
         type=argparse.FileType('r', encoding='UTF-8'),
         help='XML output results of Robot Framework')
     parser.add_argument(
-        '--config', type=argparse.FileType('r', encoding='UTF-8'), required=True, help='TestRail configuration file.')
+        '--testrail',
+        metavar='CONFIG',
+        type=argparse.FileType('r', encoding='UTF-8'),
+        required=True,
+        help='TestRail configuration file.')
     parser.add_argument('--dryrun', action='store_true', help='Run script but don\'t publish results.')
-    parser.add_argument('--api-key', help='API key of TestRail account with write access.')
+    parser.add_argument('--password', metavar='API_KEY', help='API key of TestRail account with write access.')
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument(
         '--run-id', action='store', type=int, default=None, help='Identifier of Test Run, that appears in TestRail.')
     group.add_argument(
         '--plan-id', action='store', type=int, default=None, help='Identifier of Test Plan, that appears in TestRail.')
-    parser.add_argument('--version', help='Indicate a version in Test Case result.')
-    return parser.parse_args()
+    parser.add_argument('--tr-version', metavar='VERSION', help='Indicate a version in Test Case result.')
+    opt = parser.parse_known_args()
+    if opt[1]:
+        logging.warning('Unknown options: %s', opt[1])
+    return opt[0]
 
 
 if __name__ == '__main__':
@@ -148,21 +155,21 @@ if __name__ == '__main__':
 
     # Init global variables
     CONFIG = configparser.ConfigParser()
-    CONFIG.read_file(ARGUMENTS.config)
+    CONFIG.read_file(ARGUMENTS.testrail)
     URL = CONFIG.get('API', 'url')
-    USER = CONFIG.get('API', 'user')
-    VERSION = ARGUMENTS.version
-    if ARGUMENTS.api_key:
-        API_KEY = ARGUMENTS.api_key
+    EMAIL = CONFIG.get('API', 'email')
+    VERSION = ARGUMENTS.tr_version
+    if ARGUMENTS.password:
+        PASSWORD = ARGUMENTS.password
     else:
-        API_KEY = CONFIG.get('API', 'api_key')
+        PASSWORD = CONFIG.get('API', 'password')
 
-    logging.debug('Connection info: URL=%s, USER=%s, API-KEY=%s', URL, USER, len(API_KEY) * '*')
+    logging.debug('Connection info: URL=%s, EMAIL=%s, PASSWORD=%s', URL, EMAIL, len(PASSWORD) * '*')
 
     # Init API
     API = TestRailApiUtils(URL)
-    API.user = USER
-    API.password = API_KEY
+    API.user = EMAIL
+    API.password = PASSWORD
 
     # Main
     if publish_results(API, TESTCASES, run_id=ARGUMENTS.run_id, plan_id=ARGUMENTS.plan_id, version=VERSION):

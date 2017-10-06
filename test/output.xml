@@ -17,7 +17,7 @@
 						<msg timestamp="20170725 10:57:48.029" level="FAIL">AssertionError</msg>
 						<status status="FAIL" endtime="20170725 10:57:48.029" starttime="20170725 10:57:48.029"/>
 					</kw>
-					<status status="FAIL" endtime="20170725 10:57:48.029" critical="yes" starttime="20170725 10:57:48.029">AssertionError</status>
+					<status status="FAIL" endtime="20170725 10:57:48.029" critical="yes" starttime="20170725 10:50:48.029">AssertionError</status>
 				</test>
 				<metadata>
 					<item name="TEST_CASE_ID">C9876</item>
@@ -39,7 +39,7 @@
 					<msg timestamp="20170725 10:57:48.029" level="INFO">C344</msg>
 					<status status="PASS" endtime="20170725 10:57:48.029" starttime="20170725 10:57:48.029"/>
 				</kw>
-				<status status="PASS" endtime="20170725 10:57:48.029" critical="yes" starttime="20170725 10:57:48.029"/>
+				<status status="PASS" endtime="20170725 10:57:48.029" critical="yes" starttime="20170725 09:57:47.000"/>
 			</test>
 			<metadata>
 				<item name="TEST_CASE_ID">C344</item>
@@ -57,7 +57,7 @@
 Skipped!</msg>
 					<status status="PASS" endtime="20170725 10:57:48.045" starttime="20170725 10:57:48.045"/>
 				</kw>
-				<status status="PASS" endtime="20170725 10:57:48.045" critical="yes" starttime="20170725 10:57:48.029">Skipped!</status>
+				<status status="PASS" endtime="20170725 10:57:48.045" critical="yes" starttime="20170724 10:57:48.029">Skipped!</status>
 			</test>
 			<metadata>
 				<item name="TEST_CASE_ID">C1111</item>

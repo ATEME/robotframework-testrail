@@ -8,15 +8,21 @@ import robotframework2testrail
 RESULTS = [{
     'id': 'C9876',
     'name': 'Testrail2',
-    'status': 'FAIL'
+    'status': 'FAIL',
+    'comment': '# Robot Framework result: #\n    AssertionError',
+    'duration': 420
 }, {
     'id': 'C344',
     'name': 'Testrail',
-    'status': 'PASS'
+    'status': 'PASS',
+    'comment': None,
+    'duration': 3601,
 }, {
     'id': 'C1111',
     'name': 'Testrail3',
-    'status': 'PASS'
+    'status': 'PASS',
+    'comment': '# Robot Framework result: #\n    Skipped!',
+    'duration': 86400
 }]
 
 

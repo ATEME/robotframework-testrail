@@ -3,18 +3,21 @@
 """ Tool to publish Robot Framework results in TestRail """
 import argparse
 import configparser
+import datetime
 import logging
 import os
 import sys
+import time
 import xml.etree.ElementTree as etree
 
-import time
 from colorama import Fore, Style, init
 
 import testrail
 from testrail_utils import TestRailApiUtils
 
 PATH = os.path.abspath(os.path.dirname(__file__))
+
+COMMENT_SIZE_LIMIT = 1000
 
 # Configure the logging
 LOG_FORMAT = '%(asctime)-15s %(levelname)-10s %(message)s'
@@ -34,7 +37,29 @@ def get_testcases(xml_robotfwk_output):
             if testcase_id is not None and elem.find('test/status') is not None:
                 status = elem.find('test/status').get('status')
                 name = elem.get('name')
-                result.append({'id': testcase_id.text, 'status': status, 'name': name})
+
+                # Retrieve comment
+                comment = elem.find('test/status').text
+                if comment:
+                    # Indent text to avoid string formatting by TestRail. Limit size of comment.
+                    comment = "# Robot Framework result: #\n    " + comment[:COMMENT_SIZE_LIMIT].replace('\n', '\n    ')
+                    comment += '\n...\nLog truncated' if len(str(comment)) > COMMENT_SIZE_LIMIT else ''
+                # Retrieve timing
+                duration = 1    # Minimal value in TestRail (1s)
+                start_time = elem.find('test/status').get('starttime')
+                end_time = elem.find('test/status').get('endtime')
+                if start_time and end_time:
+                    td_duration = datetime.datetime.strptime(end_time + '000', '%Y%m%d %H:%M:%S.%f') \
+                               - datetime.datetime.strptime(start_time  + '000', '%Y%m%d %H:%M:%S.%f')
+                    duration = round(td_duration.total_seconds())
+
+                result.append({
+                    'id': testcase_id.text,
+                    'status': status,
+                    'name': name,
+                    'comment': comment,
+                    'duration': duration
+                })
             # Memory optimization: see https://www.ibm.com/developerworks/library/x-hiperfparse/index.html
             elem.clear()
     return result

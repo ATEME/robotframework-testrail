@@ -13,7 +13,8 @@ TESTRAIL_URL = 'https://example.testrail.net'
 TESTCASES = [{
     'id': 'C9876',
     'name': 'Testrail2',
-    'status': 'FAIL'
+    'status': 'FAIL',
+    'comment': 'ERROR!'
 }, {
     'id': 'C344',
     'name': 'Testrail',
@@ -22,7 +23,8 @@ TESTCASES = [{
     'id': 'C1111',
     'name': 'Testrail3',
     'status': 'PASS',
-    'version': '1.0.2'
+    'version': '1.0.2',
+    'duration': 60
 }]
 
 TESTPLAN = {
@@ -69,12 +71,16 @@ def api():
 def test_add_result(api):    # pylint: disable=redefined-outer-name
     """ Test of method `add_results` """
     api.add_result(1, TESTCASES[0])
-    api.send_post.assert_called_once_with(tr.API_ADD_RESULT_CASE_URL.format(run_id=1, case_id=9876), {'status_id': 5})
+    api.send_post.assert_called_once_with(
+        tr.API_ADD_RESULT_CASE_URL.format(run_id=1, case_id=9876), {'status_id': 5,
+                                                                    'comment': 'ERROR!'})
 
     api.add_result(1, TESTCASES[2])
     api.send_post.assert_called_with(
-        tr.API_ADD_RESULT_CASE_URL.format(run_id=1, case_id=1111), {'status_id': 1,
-                                                                    'version': '1.0.2'})
+        tr.API_ADD_RESULT_CASE_URL.format(run_id=1, case_id=1111),
+        {'status_id': 1,
+         'version': '1.0.2',
+         'elapsed': '60s'})
 
 
 def test_is_testrun_available(api):    # pylint: disable=redefined-outer-name

@@ -9,7 +9,7 @@
 #
 # Copyright Gurock Software GmbH. See license.md for details.
 #
-
+# pylint: skip-file
 import urllib.request, urllib.error
 import json, base64
 

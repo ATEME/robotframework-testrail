@@ -1,8 +1,6 @@
 robotframework-testrail
 =======================
 
-Current status: beta
-
 This script publishes results of Robot Framework in TestRail.
 
 The standard process is:
@@ -64,10 +62,10 @@ Usage
 -----
 
 ```
-usage: robotframework2testrail.py [-h] --testrail CONFIG [--dryrun]
-                                  [--password API_KEY]
-                                  (--run-id RUN_ID | --plan-id PLAN_ID)
-                                  [--tr-version VERSION]
+usage: robotframework2testrail.py [-h] --tr-config CONFIG
+                                  [--tr-password API_KEY]
+                                  [--tr-version VERSION] [--dryrun]
+                                  (--tr-run-id RUN_ID | --tr-plan-id PLAN_ID)
                                   xml_robotfwk_output
 
 Tool to publish Robot Framework results in TestRail
@@ -77,30 +75,31 @@ positional arguments:
 
 optional arguments:
   -h, --help            show this help message and exit
-  --testrail CONFIG     TestRail configuration file.
-  --dryrun              Run script but don't publish results.
-  --password API_KEY    API key of TestRail account with write access.
-  --run-id RUN_ID       Identifier of Test Run, that appears in TestRail.
-  --plan-id PLAN_ID     Identifier of Test Plan, that appears in TestRail.
+  --tr-config CONFIG    TestRail configuration file.
+  --tr-password API_KEY
+                        API key of TestRail account with write access.
   --tr-version VERSION  Indicate a version in Test Case result.
+  --dryrun              Run script but don't publish results.
+  --tr-run-id RUN_ID    Identifier of Test Run, that appears in TestRail.
+  --tr-plan-id PLAN_ID  Identifier of Test Plan, that appears in TestRail.
 ```
 
 ### Example
 
 ```bash
 # Dry run
-python robotframework2testrail.py --testrail=testrail.cfg --dryrun --run-id=196 output.xml
+python robotframework2testrail.py --tr-config=testrail.cfg --dryrun --tr-run-id=196 output.xml
 
 # Publish in Test Run #196
-python robotframework2testrail.py --testrail=testrail.cfg --run-id=196 output.xml
+python robotframework2testrail.py --tr-config=testrail.cfg --tr-run-id=196 output.xml
 
 # Publish in Test Plan #200
-python robotframework2testrail.py --testrail=testrail.cfg --plan-id=200 output.xml
+python robotframework2testrail.py --tr-config=testrail.cfg --tr-plan-id=200 output.xml
 
 # Publish in Test Plan #200 with version '1.0.2'
-python robotframework2testrail.py --testrail=testrail.cfg --plan-id=200 --tr-version=1.0.2 output.xml
+python robotframework2testrail.py --tr-config=testrail.cfg --tr-plan-id=200 --tr-version=1.0.2 output.xml
 
 # Publish with api key in command line
-python robotframework2testrail.py --testrail=testrail.cfg --password azertyazertyqsdfqsdf --plan-id=200 output.xml
+python robotframework2testrail.py --tr-config=testrail.cfg --tr-password azertyazertyqsdfqsdf --tr-plan-id=200 output.xml
 
 ```

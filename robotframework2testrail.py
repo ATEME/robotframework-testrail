@@ -145,19 +145,34 @@ def options():
         type=argparse.FileType('r', encoding='UTF-8'),
         help='XML output results of Robot Framework')
     parser.add_argument(
-        '--testrail',
+        '--tr-config',
+        dest='config',
         metavar='CONFIG',
         type=argparse.FileType('r', encoding='UTF-8'),
         required=True,
         help='TestRail configuration file.')
+    parser.add_argument(
+        '--tr-password', dest='password', metavar='API_KEY', help='API key of TestRail account with write access.')
+    parser.add_argument(
+        '--tr-version', dest='version', metavar='VERSION', help='Indicate a version in Test Case result.')
     parser.add_argument('--dryrun', action='store_true', help='Run script but don\'t publish results.')
-    parser.add_argument('--password', metavar='API_KEY', help='API key of TestRail account with write access.')
+
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument(
-        '--run-id', action='store', type=int, default=None, help='Identifier of Test Run, that appears in TestRail.')
+        '--tr-run-id',
+        dest='run_id',
+        action='store',
+        type=int,
+        default=None,
+        help='Identifier of Test Run, that appears in TestRail.')
     group.add_argument(
-        '--plan-id', action='store', type=int, default=None, help='Identifier of Test Plan, that appears in TestRail.')
-    parser.add_argument('--tr-version', metavar='VERSION', help='Indicate a version in Test Case result.')
+        '--tr-plan-id',
+        dest='plan_id',
+        action='store',
+        type=int,
+        default=None,
+        help='Identifier of Test Plan, that appears in TestRail.')
+
     opt = parser.parse_known_args()
     if opt[1]:
         logging.warning('Unknown options: %s', opt[1])
@@ -180,10 +195,10 @@ if __name__ == '__main__':
 
     # Init global variables
     CONFIG = configparser.ConfigParser()
-    CONFIG.read_file(ARGUMENTS.testrail)
+    CONFIG.read_file(ARGUMENTS.config)
     URL = CONFIG.get('API', 'url')
     EMAIL = CONFIG.get('API', 'email')
-    VERSION = ARGUMENTS.tr_version
+    VERSION = ARGUMENTS.version
     if ARGUMENTS.password:
         PASSWORD = ARGUMENTS.password
     else:

@@ -124,3 +124,11 @@ def test_extract_testcase_id(api):    # pylint: disable=redefined-outer-name
     assert api.extract_testcase_id('') is None
     assert api.extract_testcase_id('test') is None
     assert api.extract_testcase_id('test C1234') is None
+
+
+def test_get_tests(api):    # pylint: disable=redefined-outer-name
+    """ Test of method `extract_testcase_id` """
+    run_id = 100
+    api.get_tests(testrun_id=run_id)
+    print(api.send_get.call_args_list)
+    api.send_get.assert_called_once_with(tr.API_GET_TESTS_URL.format(run_id=run_id))

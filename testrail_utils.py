@@ -9,6 +9,7 @@ import testrail
 API_ADD_RESULT_CASE_URL = 'add_result_for_case/{run_id}/{case_id}'
 API_GET_RUN_URL = 'get_run/{run_id}'
 API_GET_PLAN_URL = 'get_plan/{plan_id}'
+API_GET_TESTS_URL = 'get_tests/{run_id}'
 
 ROBOTFWK_TO_TESTRAIL_STATUS = {
     "PASS": 1,
@@ -100,3 +101,14 @@ class TestRailApiUtils(testrail.APIClient):
                 logging.error(error)
 
         return testcase_id
+
+    def get_tests(self, testrun_id):
+        """ Return the list of tests containing in a Test Run.
+
+        :param testrun_id: TestRail ID of the Test Run
+
+        """
+        try:
+            return self.send_get(API_GET_TESTS_URL.format(run_id=testrun_id))
+        except testrail.APIError as error:
+            logging.error(error)

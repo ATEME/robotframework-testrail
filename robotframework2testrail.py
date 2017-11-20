@@ -65,7 +65,8 @@ def get_testcases(xml_robotfwk_output):
     return result
 
 
-def publish_results(api, testcases, run_id=0, plan_id=0, version=''):
+def publish_results(api, testcases, run_id=0, plan_id=0, version='', publish_blocked=True):
+    # pylint: disable=too-many-arguments, too-many-branches
     """ Update testcases with provided Test Run or Test Plan
 
         :param api: Client to TestRail API
@@ -73,11 +74,24 @@ def publish_results(api, testcases, run_id=0, plan_id=0, version=''):
         :param run_id: TestRail ID of Test Run to update
         :param plan_id: TestRail ID of Test Plan to update
         :param version: Version to indicate in Test Case result
+        :param publish_blocked: If False, results of "blocked" Test cases in TestRail are not published
         :return: True if publishing was done. False in case of error.
     """
     if run_id:
         if api.is_testrun_available(run_id):
             count = 0
+
+            if publish_blocked is False:
+                logging.info('Option "Don\'t publish blocked testcases" activated')
+                blocked_tests_list = [
+                    test.get('case_id') for test in api.get_tests(run_id) if test.get('status_id') == 2
+                ]
+                logging.info('Blocked testcases excluded: %s', ', '.join(str(elt) for elt in blocked_tests_list))
+                testcases = [
+                    testcase for testcase in testcases
+                    if api.extract_testcase_id(testcase.get('id')) not in blocked_tests_list
+                ]
+
             for testcase in testcases:
                 if version:
                     testcase['version'] = version
@@ -99,7 +113,7 @@ def publish_results(api, testcases, run_id=0, plan_id=0, version=''):
     elif plan_id:
         if api.is_testplan_available(plan_id):
             for _run_id in api.get_available_testruns(plan_id):
-                publish_results(api, testcases, run_id=_run_id, version=version)
+                publish_results(api, testcases, run_id=_run_id, version=version, publish_blocked=publish_blocked)
         else:
             logging.error('Test Plan #%d is is not available', plan_id)
             return False
@@ -156,6 +170,10 @@ def options():
     parser.add_argument(
         '--tr-version', dest='version', metavar='VERSION', help='Indicate a version in Test Case result.')
     parser.add_argument('--dryrun', action='store_true', help='Run script but don\'t publish results.')
+    parser.add_argument(
+        '--tr-dont-publish-blocked',
+        action='store_true',
+        help='Do not publish results of "blocked" testcases in TestRail.')
 
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument(
@@ -186,6 +204,8 @@ if __name__ == '__main__':
     # Manage options
     ARGUMENTS = options()
 
+    logging.debug(ARGUMENTS)
+
     TESTCASES = get_testcases(ARGUMENTS.xml_robotfwk_output[0].name)
 
     if ARGUMENTS.dryrun:
@@ -199,6 +219,7 @@ if __name__ == '__main__':
     URL = CONFIG.get('API', 'url')
     EMAIL = CONFIG.get('API', 'email')
     VERSION = ARGUMENTS.version
+    PUBLISH_BLOCKED = not ARGUMENTS.tr_dont_publish_blocked
     if ARGUMENTS.password:
         PASSWORD = ARGUMENTS.password
     else:
@@ -212,7 +233,13 @@ if __name__ == '__main__':
     API.password = PASSWORD
 
     # Main
-    if publish_results(API, TESTCASES, run_id=ARGUMENTS.run_id, plan_id=ARGUMENTS.plan_id, version=VERSION):
+    if publish_results(
+            API,
+            TESTCASES,
+            run_id=ARGUMENTS.run_id,
+            plan_id=ARGUMENTS.plan_id,
+            version=VERSION,
+            publish_blocked=PUBLISH_BLOCKED):
         print(Fore.GREEN + 'OK' + Fore.RESET)
         sys.exit()
     else:

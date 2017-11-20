@@ -65,6 +65,7 @@ Usage
 usage: robotframework2testrail.py [-h] --tr-config CONFIG
                                   [--tr-password API_KEY]
                                   [--tr-version VERSION] [--dryrun]
+                                  [--tr-dont-publish-blocked]
                                   (--tr-run-id RUN_ID | --tr-plan-id PLAN_ID)
                                   xml_robotfwk_output
 
@@ -80,6 +81,9 @@ optional arguments:
                         API key of TestRail account with write access.
   --tr-version VERSION  Indicate a version in Test Case result.
   --dryrun              Run script but don't publish results.
+  --tr-dont-publish-blocked
+                        Do not publish results of "blocked" testcases in
+                        TestRail.
   --tr-run-id RUN_ID    Identifier of Test Run, that appears in TestRail.
   --tr-plan-id PLAN_ID  Identifier of Test Plan, that appears in TestRail.
 ```
@@ -93,8 +97,8 @@ python robotframework2testrail.py --tr-config=testrail.cfg --dryrun --tr-run-id=
 # Publish in Test Run #196
 python robotframework2testrail.py --tr-config=testrail.cfg --tr-run-id=196 output.xml
 
-# Publish in Test Plan #200
-python robotframework2testrail.py --tr-config=testrail.cfg --tr-plan-id=200 output.xml
+# Publish in Test Plan #200 and dont publish "blocked" Test Cases in TestRail
+python robotframework2testrail.py --tr-config=testrail.cfg --tr-plan-id=200 --tr-dont-publish-blocked output.xml
 
 # Publish in Test Plan #200 with version '1.0.2'
 python robotframework2testrail.py --tr-config=testrail.cfg --tr-plan-id=200 --tr-version=1.0.2 output.xml

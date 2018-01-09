@@ -204,8 +204,6 @@ if __name__ == '__main__':
     # Manage options
     ARGUMENTS = options()
 
-    logging.debug(ARGUMENTS)
-
     TESTCASES = get_testcases(ARGUMENTS.xml_robotfwk_output[0].name)
 
     if ARGUMENTS.dryrun:

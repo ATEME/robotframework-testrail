@@ -20,7 +20,7 @@ RESULTS = [{
     'name': 'Testrail',
     'status': 'PASS',
     'comment': None,
-    'duration': 3601,
+    'duration': 1,
 }, {
     'id': 'C1111',
     'name': 'Testrail3',

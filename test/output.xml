@@ -39,7 +39,7 @@
 					<msg timestamp="20170725 10:57:48.029" level="INFO">C344</msg>
 					<status status="PASS" endtime="20170725 10:57:48.029" starttime="20170725 10:57:48.029"/>
 				</kw>
-				<status status="PASS" endtime="20170725 10:57:48.029" critical="yes" starttime="20170725 09:57:47.000"/>
+				<status status="PASS" endtime="20170725 10:57:48.029" critical="yes" starttime="20170725 10:57:48.050"/>
 			</test>
 			<metadata>
 				<item name="TEST_CASE_ID">C344</item>

@@ -45,13 +45,14 @@ def get_testcases(xml_robotfwk_output):
                     comment = "# Robot Framework result: #\n    " + comment[:COMMENT_SIZE_LIMIT].replace('\n', '\n    ')
                     comment += '\n...\nLog truncated' if len(str(comment)) > COMMENT_SIZE_LIMIT else ''
                 # Retrieve timing
-                duration = 1    # Minimal value in TestRail (1s)
                 start_time = elem.find('test/status').get('starttime')
                 end_time = elem.find('test/status').get('endtime')
+                duration = 0
                 if start_time and end_time:
                     td_duration = datetime.datetime.strptime(end_time + '000', '%Y%m%d %H:%M:%S.%f') \
-                               - datetime.datetime.strptime(start_time  + '000', '%Y%m%d %H:%M:%S.%f')
+                               - datetime.datetime.strptime(start_time + '000', '%Y%m%d %H:%M:%S.%f')
                     duration = round(td_duration.total_seconds())
+                duration = 1 if (duration < 1) else duration    # TestRail API doesn't manage msec (min value=1s)
 
                 result.append({
                     'id': testcase_id.text,

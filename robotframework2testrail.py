@@ -15,6 +15,8 @@ from colorama import Fore, Style, init
 import testrail
 from testrail_utils import TestRailApiUtils
 
+# pylint: disable=logging-format-interpolation
+
 PATH = os.path.abspath(os.path.dirname(__file__))
 
 COMMENT_SIZE_LIMIT = 1000
@@ -81,11 +83,20 @@ def publish_results(api, testcases, run_id=0, plan_id=0, version='', publish_blo
     if run_id:
         if api.is_testrun_available(run_id):
             count = 0
+            logging.info('Publish in Test Run #%d', run_id)
+            testcases_in_testrun_list = api.get_tests(run_id)
 
+            # Filter tests present in Test Run
+            case_id_in_testrun_list = [str(tc['case_id']) for tc in testcases_in_testrun_list]
+            testcases = [
+                testcase for testcase in testcases if testcase['id'].replace('C', '') in case_id_in_testrun_list
+            ]
+
+            # Filter "blocked" tests
             if publish_blocked is False:
                 logging.info('Option "Don\'t publish blocked testcases" activated')
                 blocked_tests_list = [
-                    test.get('case_id') for test in api.get_tests(run_id) if test.get('status_id') == 2
+                    test.get('case_id') for test in testcases_in_testrun_list if test.get('status_id') == 2
                 ]
                 logging.info('Blocked testcases excluded: %s', ', '.join(str(elt) for elt in blocked_tests_list))
                 testcases = [
@@ -100,12 +111,14 @@ def publish_results(api, testcases, run_id=0, plan_id=0, version='', publish_blo
                     api.add_result(run_id, testcase)
                     count += 1
                     pretty_print_testcase(testcase)
+                    logging.debug('{id}\t{status}\t{name}\t'.format(**testcase))
                     print()
                 except testrail.APIError as error:
                     if 'No (active) test found for the run/case combination' not in str(error):
                         pretty_print_testcase(testcase, str(error))
+                        logging.debug('{id}\t{status}\t{name}\tnot published'.format(**testcase))
                         print()
-                time.sleep(0.5)
+                time.sleep(0.25)
             logging.info('%d result(s) published in Test Run #%d.', count, run_id)
         else:
             logging.error('Test Run #%d is is not available', run_id)
@@ -113,6 +126,7 @@ def publish_results(api, testcases, run_id=0, plan_id=0, version='', publish_blo
 
     elif plan_id:
         if api.is_testplan_available(plan_id):
+            logging.info('Publish in Test Plan #%d', plan_id)
             for _run_id in api.get_available_testruns(plan_id):
                 publish_results(api, testcases, run_id=_run_id, version=version, publish_blocked=publish_blocked)
         else:

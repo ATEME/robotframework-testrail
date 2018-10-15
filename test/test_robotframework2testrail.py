@@ -32,24 +32,30 @@ RESULTS = [{
 
 def test_get_testcases():
     """ Test of function `get_testcases` """
-    assert robotframework2testrail.get_testcases(
-        os.path.join(robotframework2testrail.PATH, 'test', 'output.xml')) == RESULTS
+    assert robotframework2testrail.get_testcases(os.path.join(robotframework2testrail.PATH, 'test',
+                                                              'output.xml')) == RESULTS
 
 
 def test_publish_testrun():
     """ Test of function `publish_results` """
     api = Mock()
+    api.get_tests.return_value = [{
+        'case_id': 9876
+    }, {
+        'case_id': 344
+    }]    # One test (1111) is filtered because not missing in testrun
     testrun_id = 100
     robotframework2testrail.publish_results(api, RESULTS, run_id=testrun_id, version='1.2.3.4')
     api.is_testrun_available.assert_called_with(testrun_id)
     assert api.add_result.call_args_list[0] == call(testrun_id, RESULTS[0])
     assert api.add_result.call_args_list[1] == call(testrun_id, RESULTS[1])
-    assert api.add_result.call_args_list[2] == call(testrun_id, RESULTS[2])
+    assert len(api.add_result.call_args_list) == 2
 
 
 def test_publish_testplan():
     """ Test of function `publish_results` """
     api = Mock()
+    api.get_tests.return_value = [{'case_id': 9876}, {'case_id': 344}, {'case_id': 1111}]
     api.get_available_testruns.return_value = [101, 102]
     robotframework2testrail.publish_results(api, RESULTS, plan_id=100)
     assert api.add_result.call_args_list[0] == call(101, RESULTS[0])
@@ -64,7 +70,16 @@ def test_dont_publish_blocked():
     """ Test when blocked testcases are not published """
     api = Mock()
     testrun_id = 100
-    api.get_tests.return_value = [{'case_id': 344, 'status_id': 2}]
+    api.get_tests.return_value = [{
+        'case_id': 9876,
+        'status_id': 1
+    }, {
+        'case_id': 344,
+        'status_id': 2
+    }, {
+        'case_id': 1111,
+        'status_id': 1
+    }]
     api.extract_testcase_id = TestRailApiUtils.extract_testcase_id    # don't mock this method
     robotframework2testrail.publish_results(api, RESULTS, run_id=100, publish_blocked=False)
     assert len(api.add_result.call_args_list) == 2

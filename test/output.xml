@@ -1,86 +1,183 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<robot generated="20170725 10:57:47.929" generator="Robot 3.0.2 (Python 2.7.13 on win32)">
-	<suite source="C:\work\rfw_testrail\test" id="s1" name="Test">
-		<suite source="C:\work\rfw_testrail\test\folder" id="s1-s1" name="Folder">
-			<suite source="C:\work\rfw_testrail\test\folder\Testrail2.robot" id="s1-s1-s1" name="Testrail2">
-				<test id="s1-s1-s1-t1" name="Test KO">
-					<kw name="Log" library="BuiltIn">
-						<doc>Logs the given message with the given level.</doc>
-						<arguments>
-							<arg>Test KO</arg>
-						</arguments>
-						<msg timestamp="20170725 10:57:48.029" level="INFO">Test KO</msg>
-						<status status="PASS" endtime="20170725 10:57:48.029" starttime="20170725 10:57:48.029"/>
-					</kw>
-					<kw name="Fail" library="BuiltIn">
-						<doc>Fails the test with the given message and optionally alters its tags.</doc>
-						<msg timestamp="20170725 10:57:48.029" level="FAIL">AssertionError</msg>
-						<status status="FAIL" endtime="20170725 10:57:48.029" starttime="20170725 10:57:48.029"/>
-					</kw>
-					<status status="FAIL" endtime="20170725 10:57:48.029" critical="yes" starttime="20170725 10:50:48.029">AssertionError</status>
-				</test>
-				<metadata>
-					<item name="TEST_CASE_ID">C9876</item>
-				</metadata>
-				<status status="FAIL" endtime="20170725 10:57:48.029" starttime="20170725 10:57:48.014"/>
-			</suite>
-			<metadata>
-				<item name="TEST_CASE_ID">C123456</item>
-			</metadata>
-			<status status="FAIL" endtime="20170725 10:57:48.029" starttime="20170725 10:57:48.014"/>
-		</suite>
-		<suite source="C:\work\rfw_testrail\test\testrail.robot" id="s1-s2" name="Testrail">
-			<test id="s1-s2-t1" name="Test OK">
-				<kw name="Log" library="BuiltIn">
-					<doc>Logs the given message with the given level.</doc>
-					<arguments>
-						<arg>${SUITE METADATA['TEST_CASE_ID']}</arg>
-					</arguments>
-					<msg timestamp="20170725 10:57:48.029" level="INFO">C344</msg>
-					<status status="PASS" endtime="20170725 10:57:48.029" starttime="20170725 10:57:48.029"/>
-				</kw>
-				<status status="PASS" endtime="20170725 10:57:48.029" critical="yes" starttime="20170725 10:57:48.050"/>
-			</test>
-			<metadata>
-				<item name="TEST_CASE_ID">C344</item>
-			</metadata>
-			<status status="PASS" endtime="20170725 10:57:48.029" starttime="20170725 10:57:48.029"/>
-		</suite>
-		<suite source="C:\work\rfw_testrail\test\Testrail3.robot" id="s1-s3" name="Testrail3">
-			<test id="s1-s3-t1" name="Test Skip">
-				<kw name="Pass Execution" library="BuiltIn">
-					<doc>Skips rest of the current test, setup, or teardown with PASS status.</doc>
-					<arguments>
-						<arg>Skipped!</arg>
-					</arguments>
-					<msg timestamp="20170725 10:57:48.045" level="INFO">Execution passed with message:
-Skipped!</msg>
-					<status status="PASS" endtime="20170725 10:57:48.045" starttime="20170725 10:57:48.045"/>
-				</kw>
-				<status status="PASS" endtime="20170725 10:57:48.045" critical="yes" starttime="20170724 10:57:48.029">Skipped!</status>
-			</test>
-			<metadata>
-				<item name="TEST_CASE_ID">C1111</item>
-			</metadata>
-			<status status="PASS" endtime="20170725 10:57:48.045" starttime="20170725 10:57:48.029"/>
-		</suite>
-		<status status="FAIL" endtime="20170725 10:57:48.045" starttime="20170725 10:57:47.982"/>
-	</suite>
-	<statistics>
-		<total>
-			<stat fail="1" pass="2">Critical Tests</stat>
-			<stat fail="1" pass="2">All Tests</stat>
-		</total>
-		<tag>
-		</tag>
-		<suite>
-			<stat fail="1" id="s1" name="Test" pass="2">Test</stat>
-			<stat fail="1" id="s1-s1" name="Folder" pass="0">Test.Folder</stat>
-			<stat fail="1" id="s1-s1-s1" name="Testrail2" pass="0">Test.Folder.Testrail2</stat>
-			<stat fail="0" id="s1-s2" name="Testrail" pass="1">Test.Testrail</stat>
-			<stat fail="0" id="s1-s3" name="Testrail3" pass="1">Test.Testrail3</stat>
-		</suite>
-	</statistics>
-	<errors>
-	</errors>
+<robot generated="20190614 10:48:24.175" generator="Robot 3.0.2 (Python 3.4.4 on win32)">
+    <suite name="Examples" source="L:\test-framework\scripts\robotframework-testrail\test\examples" id="s1">
+        <suite name="Test Suite With Metadata"
+               source="L:\test-framework\scripts\robotframework-testrail\test\examples\test_suite_with_metadata.robot"
+               id="s1-s1">
+            <test name="Test With Id_344 From Metadata" id="s1-s1-t1">
+                <kw name="Log" library="BuiltIn">
+                    <doc>Logs the given message with the given level.</doc>
+                    <arguments>
+                        <arg>Only With Metadata</arg>
+                    </arguments>
+                    <msg level="INFO" timestamp="20190614 10:48:24.215">Only With Metadata</msg>
+                    <status endtime="20190614 10:48:24.215" starttime="20190614 10:48:24.214" status="PASS"></status>
+                </kw>
+                <status critical="yes" endtime="20190614 10:48:24.215" starttime="20190614 10:48:24.214"
+                        status="PASS"></status>
+            </test>
+            <test name="Test2 With Id_344 From Metadata" id="s1-s1-t2">
+                <kw name="Fail" library="BuiltIn">
+                    <doc>Fails the test with the given message and optionally alters its tags.</doc>
+                    <arguments>
+                        <arg>Only With Metadata</arg>
+                    </arguments>
+                    <msg level="FAIL" timestamp="20190614 10:48:24.216">Only With Metadata</msg>
+                    <msg level="DEBUG" timestamp="20190614 10:48:24.216">Traceback (most recent call last):
+                        None
+                    </msg>
+                    <status endtime="20190614 10:49:24.217" starttime="20190614 10:48:24.215" status="FAIL"></status>
+                </kw>
+                <status critical="yes" endtime="20190614 10:49:24.217" starttime="20190614 10:48:24.215" status="FAIL">
+                    Only With Metadata
+                </status>
+            </test>
+            <metadata>
+                <item name="TEST_CASE_ID">C344</item>
+            </metadata>
+            <status endtime="20190614 10:49:24.217" starttime="20190614 10:48:24.211" status="FAIL"></status>
+        </suite>
+        <suite name="Test Suite With Metadata And Tag"
+               source="L:\test-framework\scripts\robotframework-testrail\test\examples\test_suite_with_metadata_and_tag.robot"
+               id="s1-s2">
+            <test name="Test With Id 345 From Metadata" id="s1-s2-t1">
+                <kw name="Log" library="BuiltIn">
+                    <doc>Logs the given message with the given level.</doc>
+                    <arguments>
+                        <arg>With Metadata</arg>
+                    </arguments>
+                    <msg level="INFO" timestamp="20190614 10:48:24.222">With Metadata</msg>
+                    <status endtime="20190614 10:48:24.222" starttime="20190614 10:48:24.222" status="PASS"></status>
+                </kw>
+                <status critical="yes" endtime="20190614 10:48:24.222" starttime="20190614 10:48:24.221"
+                        status="PASS"></status>
+            </test>
+            <test name="Test With Id 366 From Tag" id="s1-s2-t2">
+                <kw name="Log" library="BuiltIn">
+                    <doc>Logs the given message with the given level.</doc>
+                    <arguments>
+                        <arg>With Metadata And Tag</arg>
+                    </arguments>
+                    <msg level="INFO" timestamp="20190614 10:48:24.223">With Metadata And Tag</msg>
+                    <status endtime="20190614 11:48:24.223" starttime="20190614 10:48:24.223" status="PASS"></status>
+                </kw>
+                <tags>
+                    <tag>TAG1</tag>
+                    <tag>TAG2</tag>
+                    <tag>test_case_id=C366</tag>
+                </tags>
+                <status critical="yes" endtime="20190614 11:48:24.223" starttime="20190614 10:48:24.222"
+                        status="PASS"></status>
+            </test>
+            <metadata>
+                <item name="TEST_CASE_ID">C345</item>
+            </metadata>
+            <status endtime="20190614 10:48:24.223" starttime="20190614 10:48:24.218" status="PASS"></status>
+        </suite>
+        <suite name="Test Suite With Tag"
+               source="L:\test-framework\scripts\robotframework-testrail\test\examples\test_suite_with_tag.robot"
+               id="s1-s3">
+            <test name="Test With Id 347 From Tag" id="s1-s3-t1">
+                <kw name="Fail" library="BuiltIn">
+                    <doc>Fails the test with the given message and optionally alters its tags.</doc>
+                    <arguments>
+                        <arg>Only With Tag</arg>
+                    </arguments>
+                    <msg level="FAIL" timestamp="20190614 10:48:24.227">Only With Tag</msg>
+                    <msg level="DEBUG" timestamp="20190614 10:48:24.227">Traceback (most recent call last):
+                        None
+                    </msg>
+                    <status endtime="20190615 10:48:24.227" starttime="20190614 10:48:24.227" status="FAIL"></status>
+                </kw>
+                <tags>
+                    <tag>TAG1</tag>
+                    <tag>TAG2</tag>
+                    <tag>test_case_id=C347</tag>
+                </tags>
+                <status critical="yes" endtime="20190615 10:48:24.227" starttime="20190614 10:48:24.226" status="FAIL">
+                    Only With Tag
+                </status>
+            </test>
+            <test name="Test With Id 348 From Tag" id="s1-s3-t2">
+                <kw name="Log" library="BuiltIn">
+                    <doc>Logs the given message with the given level.</doc>
+                    <arguments>
+                        <arg>Only With Tag</arg>
+                    </arguments>
+                    <msg level="INFO" timestamp="20190614 10:48:24.228">Only With Tag</msg>
+                    <status endtime="20190614 10:48:24.228" starttime="20190614 10:48:24.228" status="PASS"></status>
+                </kw>
+                <tags>
+                    <tag>TAG1</tag>
+                    <tag>TAG2</tag>
+                    <tag>test_case_id=348</tag>
+                </tags>
+                <status critical="yes" endtime="20190614 10:48:24.229" starttime="20190614 10:48:24.228"
+                        status="PASS"></status>
+            </test>
+            <test name="Test Without Id" id="s1-s3-t3">
+                <kw name="Fail" library="BuiltIn">
+                    <doc>Fails the test with the given message and optionally alters its tags.</doc>
+                    <arguments>
+                        <arg>With No Tag</arg>
+                    </arguments>
+                    <msg level="FAIL" timestamp="20190614 10:48:24.230">With No Tag</msg>
+                    <msg level="DEBUG" timestamp="20190614 10:48:24.230">Traceback (most recent call last):
+                        None
+                    </msg>
+                    <status endtime="20190614 10:48:24.230" starttime="20190614 10:48:24.229" status="FAIL"></status>
+                </kw>
+                <tags>
+                    <tag>TAG1</tag>
+                    <tag>TAG2</tag>
+                </tags>
+                <status critical="yes" endtime="20190614 10:48:24.230" starttime="20190614 10:48:24.229" status="FAIL">
+                    With No Tag
+                </status>
+            </test>
+            <status endtime="20190615 10:48:24.230" starttime="20190614 10:48:24.224" status="FAIL"></status>
+        </suite>
+        <suite name="Test Suite Without Id"
+               source="L:\test-framework\scripts\robotframework-testrail\test\examples\test_suite_without_id.robot"
+               id="s1-s4">
+            <test name="Test Without Id" id="s1-s4-t1">
+                <kw name="Log" library="BuiltIn">
+                    <doc>Logs the given message with the given level.</doc>
+                    <arguments>
+                        <arg>Without Any Test Case ID</arg>
+                    </arguments>
+                    <msg level="INFO" timestamp="20190614 10:48:24.234">Without Any Test Case ID</msg>
+                    <status endtime="20190614 10:48:24.234" starttime="20190614 10:48:24.234" status="PASS"></status>
+                </kw>
+                <status critical="yes" endtime="20190614 10:48:24.234" starttime="20190614 10:48:24.233"
+                        status="PASS"></status>
+            </test>
+            <status endtime="20190614 10:48:24.234" starttime="20190614 10:48:24.231" status="PASS"></status>
+        </suite>
+        <status endtime="20190614 10:48:24.235" starttime="20190614 10:48:24.179" status="FAIL"></status>
+    </suite>
+    <statistics>
+        <total>
+            <stat fail="3" pass="5">Critical Tests</stat>
+            <stat fail="3" pass="5">All Tests</stat>
+        </total>
+        <tag>
+            <stat fail="2" pass="2">TAG1</stat>
+            <stat fail="2" pass="2">TAG2</stat>
+            <stat fail="0" pass="1">test_case_id=348</stat>
+            <stat fail="1" pass="0">test_case_id=C347</stat>
+            <stat fail="0" pass="1">test_case_id=C366</stat>
+        </tag>
+        <suite>
+            <stat fail="3" name="Examples" pass="5" id="s1">Examples</stat>
+            <stat fail="1" name="Test Suite With Metadata" pass="1" id="s1-s1">Examples.Test Suite With Metadata</stat>
+            <stat fail="0" name="Test Suite With Metadata And Tag" pass="2" id="s1-s2">Examples.Test Suite With Metadata
+                And Tag
+            </stat>
+            <stat fail="2" name="Test Suite With Tag" pass="1" id="s1-s3">Examples.Test Suite With Tag</stat>
+            <stat fail="0" name="Test Suite Without Id" pass="1" id="s1-s4">Examples.Test Suite Without Id</stat>
+        </suite>
+    </statistics>
+    <errors>
+    </errors>
 </robot>

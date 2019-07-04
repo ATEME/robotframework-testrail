@@ -26,7 +26,14 @@ Configuration
 
 ### Robot Framework
 
-Create a metadata `TEST_CASE_ID` in your test suite containing TestRail ID.
+To create the `TEST_CASE_ID`  you have the possibility to use the metadata or the test's tag, `the priority is done to the tag and not the metadata`.
+
+
+**With Metadata:**
+
+If you want to create only one `TEST_CASE_ID` for you test, use the following method:
+
+Create a metadata `TEST_CASE_ID` in your test containing TestRail ID.
 
 Format of `TEST_CASE_ID` is :
 * Descriptor + an integer: `C1234`, `TestRail5678`
@@ -44,6 +51,54 @@ Test Example
 ```
 
 In this case, the result of Test Case C345 will be 'passed' in TestRail.
+
+
+**With Tags:**
+
+If you want to create one or more than `TEST_CASE_ID` for your test or tests use the following method:
+
+Create a tag `test_case_id=ID` in your test containing TestRail ID without a metadata `TEST_CASE_ID`.
+
+Format of ID is:
+* `C` + an integer: `C1234`
+* An integer: 1234, 5678
+
+**Example one test**:
+```robotframework
+*** Test Cases ***
+Test 1
+    [Tags]  test_case_id=1234   critical standard
+```
+
+**Example more than one test**:
+```robotframework
+*** Test Cases ***
+Test 1
+    [Tags]  test_case_id=C1234   critical standard
+    
+Test 2
+    [Tags]  test_case_id=C5678   critical standard
+    
+Test 3
+    [Tags]  test_case_id=C91011   critical standard
+```
+In this case, the results of Test 1 C1234 and Test 2 C5678 and Test 3 C91011 will be 'passed' in TestRail.
+
+**Example priority management**:
+```robotframework
+*** Settings ***
+Metadata          TEST_CASE_ID    C345
+
+*** Test Cases ***
+
+Test Example
+Test 1
+    [Tags]  test_case_id=C1234   critical standard
+```
+In this case, the result of Test Case C1234 will be 'passed' in TestRail and not C345, priority to tag and not metatdata.
+
+**Other examples**
+You can find more examples in `test/examples` folder.
 
 ### TestRail configuration
 

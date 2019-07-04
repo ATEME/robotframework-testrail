@@ -6,13 +6,13 @@ import configparser
 import datetime
 import logging
 import os
+import re
 import sys
 import time
-import xml.etree.ElementTree as etree
-
-from colorama import Fore, Style, init
 
 import testrail
+from colorama import Fore, Style, init
+from robot.api import ExecutionResult, ResultVisitor
 from testrail_utils import TestRailApiUtils
 
 # pylint: disable=logging-format-interpolation
@@ -30,42 +30,78 @@ CONSOLE_HANDLER.setFormatter(logging.Formatter('%(message)s'))
 logging.getLogger().addHandler(CONSOLE_HANDLER)
 
 
+class TestRailResultVisitor(ResultVisitor):
+    """ Implement a `Visitor` that retrieves TestRail ID from Robot Framework Result """
+
+    def __init__(self):
+        """ Init """
+        self.result_testcase_list = []
+
+    def end_suite(self, suite):
+        """ Called when suite end """
+        for _suite, test, test_case_id in self._get_test_case_id_from_suite(suite):
+            self._append_testrail_result(_suite, test, test_case_id)
+
+    @staticmethod
+    def _get_test_case_id_from_suite(suite):
+        """ Retrieve list of Test Case ID from a suite
+            Manage both case: ID in metadata or in tags.
+        """
+        testcase_id = 0
+        result = []
+        # Retrieve test_case_id from metadata
+        for metadata in suite.metadata:
+            if metadata == 'TEST_CASE_ID':
+                testcase_id = suite.metadata['TEST_CASE_ID']
+                break    # We only take the first ID found
+        # Retrieve test_case_id from tags
+        for test in suite.tests:
+            test_case_id_from_tags = TestRailResultVisitor._get_test_case_id_from_tags(test.tags)
+            if test_case_id_from_tags:
+                result.append((test.name, test, test_case_id_from_tags))
+                logging.debug("Use TestRail ID from tag: ID = %s", test_case_id_from_tags)
+            else:
+                if testcase_id:
+                    result.append((suite.name, test, testcase_id))
+                    logging.debug("Use TestRail ID from metadata: ID = %s", testcase_id)
+        return result
+
+    @staticmethod
+    def _get_test_case_id_from_tags(tags):
+        """ Retrieve first Test Case ID found in tag list """
+        for tag in tags:
+            if re.findall("(test_case_id=[C]?[0-9]+)", tag):
+                return tag[len('test_case_id='):]
+
+    def _append_testrail_result(self, name, test, testcase_id):
+        """ Append a result in TestRail format """
+        comment = None
+        if test.message:
+            comment = test.message
+            # Indent text to avoid string formatting by TestRail. Limit size of comment.
+            comment = "# Robot Framework result: #\n    " + comment[:COMMENT_SIZE_LIMIT].replace('\n', '\n    ')
+            comment += '\n...\nLog truncated' if len(str(comment)) > COMMENT_SIZE_LIMIT else ''
+        duration = 0
+        if test.starttime and test.endtime:
+            td_duration = datetime.datetime.strptime(test.endtime + '000', '%Y%m%d %H:%M:%S.%f')\
+                        - datetime.datetime.strptime(test.starttime + '000', '%Y%m%d %H:%M:%S.%f')
+            duration = round(td_duration.total_seconds())
+            duration = 1 if (duration < 1) else duration    # TestRail API doesn't manage msec (min value=1s)
+        self.result_testcase_list.append({
+            'id': testcase_id,
+            'status': test.status,
+            'name': name,
+            'comment': comment,
+            'duration': duration
+        })
+
+
 def get_testcases(xml_robotfwk_output):
     """ Return the list of Testcase ID with status """
-    result = []
-    for _, elem in etree.iterparse(xml_robotfwk_output):    # pylint: disable=no-member
-        if elem.tag == 'suite':
-            testcase_id = elem.find('metadata/item[@name="TEST_CASE_ID"]')
-            if testcase_id is not None and elem.find('test/status') is not None:
-                status = elem.find('test/status').get('status')
-                name = elem.get('name')
-
-                # Retrieve comment
-                comment = elem.find('test/status').text
-                if comment:
-                    # Indent text to avoid string formatting by TestRail. Limit size of comment.
-                    comment = "# Robot Framework result: #\n    " + comment[:COMMENT_SIZE_LIMIT].replace('\n', '\n    ')
-                    comment += '\n...\nLog truncated' if len(str(comment)) > COMMENT_SIZE_LIMIT else ''
-                # Retrieve timing
-                start_time = elem.find('test/status').get('starttime')
-                end_time = elem.find('test/status').get('endtime')
-                duration = 0
-                if start_time and end_time:
-                    td_duration = datetime.datetime.strptime(end_time + '000', '%Y%m%d %H:%M:%S.%f') \
-                               - datetime.datetime.strptime(start_time + '000', '%Y%m%d %H:%M:%S.%f')
-                    duration = round(td_duration.total_seconds())
-                duration = 1 if (duration < 1) else duration    # TestRail API doesn't manage msec (min value=1s)
-
-                result.append({
-                    'id': testcase_id.text,
-                    'status': status,
-                    'name': name,
-                    'comment': comment,
-                    'duration': duration
-                })
-            # Memory optimization: see https://www.ibm.com/developerworks/library/x-hiperfparse/index.html
-            elem.clear()
-    return result
+    result = ExecutionResult(xml_robotfwk_output)
+    visitor = TestRailResultVisitor()
+    result.visit(visitor)
+    return visitor.result_testcase_list
 
 
 def publish_results(api, testcases, run_id=0, plan_id=0, version='', publish_blocked=True):

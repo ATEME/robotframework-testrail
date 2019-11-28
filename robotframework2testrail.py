@@ -17,7 +17,7 @@ from testrail_utils import TestRailApiUtils
 
 # pylint: disable=logging-format-interpolation
 
-PATH = os.path.abspath(os.path.dirname(__file__))
+PATH = os.getcwd()
 
 COMMENT_SIZE_LIMIT = 1000
 

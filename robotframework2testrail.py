@@ -17,13 +17,13 @@ from testrail_utils import TestRailApiUtils
 
 # pylint: disable=logging-format-interpolation
 
-PATH = os.path.abspath(os.path.dirname(__file__))
+PATH = os.getcwd()
 
 COMMENT_SIZE_LIMIT = 1000
 
 # Configure the logging
 LOG_FORMAT = '%(asctime)-15s %(levelname)-10s %(message)s'
-logging.basicConfig(filename=os.path.join(PATH, 'robotframwork2testrail.log'), format=LOG_FORMAT, level=logging.DEBUG)
+logging.basicConfig(filename=os.path.join(PATH, 'robotframework2testrail.log'), format=LOG_FORMAT, level=logging.DEBUG)
 CONSOLE_HANDLER = logging.StreamHandler()
 CONSOLE_HANDLER.setLevel(logging.INFO)
 CONSOLE_HANDLER.setFormatter(logging.Formatter('%(message)s'))

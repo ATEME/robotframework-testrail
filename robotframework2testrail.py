@@ -54,12 +54,13 @@ class TestRailResultVisitor(ResultVisitor):
             if metadata == 'TEST_CASE_ID':
                 testcase_id = suite.metadata['TEST_CASE_ID']
                 break    # We only take the first ID found
-        # Retrieve test_case_id from tags
+        # Retrieve test_case_ids from tags
         for test in suite.tests:
-            test_case_id_from_tags = TestRailResultVisitor._get_test_case_id_from_tags(test.tags)
-            if test_case_id_from_tags:
-                result.append((test.name, test, test_case_id_from_tags))
-                logging.debug("Use TestRail ID from tag: ID = %s", test_case_id_from_tags)
+            test_case_ids_from_tags = TestRailResultVisitor._get_test_case_ids_from_tags(test.tags)
+            if test_case_ids_from_tags:
+                for tcid in test_case_ids_from_tags:
+                    result.append((test.name, test, tcid))
+                    logging.debug("Use TestRail ID from tag: ID = %s", tcid)
             else:
                 if testcase_id:
                     result.append((suite.name, test, testcase_id))
@@ -67,11 +68,13 @@ class TestRailResultVisitor(ResultVisitor):
         return result
 
     @staticmethod
-    def _get_test_case_id_from_tags(tags):
-        """ Retrieve first Test Case ID found in tag list """
+    def _get_test_case_ids_from_tags(tags):
+        """ Retrieve all test case tags found in the list """
+        test_case_list = []
         for tag in tags:
             if re.findall("(test_case_id=[C]?[0-9]+)", tag):
-                return tag[len('test_case_id='):]
+                test_case_list.append(tag[len('test_case_id='):])
+        return test_case_list
 
     def _append_testrail_result(self, name, test, testcase_id):
         """ Append a result in TestRail format """

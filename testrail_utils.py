@@ -7,6 +7,7 @@ import string
 import testrail
 
 API_ADD_RESULT_CASE_URL = 'add_result_for_case/{run_id}/{case_id}'
+API_ADD_RESULT_CASES_URL = 'add_results_for_cases/{run_id}'
 API_GET_RUN_URL = 'get_run/{run_id}'
 API_GET_PLAN_URL = 'get_plan/{plan_id}'
 API_GET_TESTS_URL = 'get_tests/{run_id}'
@@ -40,6 +41,34 @@ class TestRailApiUtils(testrail.APIClient):
             return None
 
         return self.send_post(API_ADD_RESULT_CASE_URL.format(run_id=testrun_id, case_id=testcase_id), data)
+
+    def add_results(self, testrun_id, version, testcase_infos):
+        """ Add a results to the given Test Run
+
+        :param testrun_id: Testrail ID of the Test Run to feed
+        :param version: Test version
+        :param testcase_infos: List of dict containing info on testcase
+
+        """
+        data = []
+        for testcase_info in testcase_infos:
+            testcase_data = {
+                'status_id': ROBOTFWK_TO_TESTRAIL_STATUS[testcase_info.get('status')]
+            }
+            if version:
+                testcase_data['version'] = version
+            if 'comment' in testcase_info:
+                testcase_data['comment'] = testcase_info.get('comment')
+            if 'duration' in testcase_info:
+                testcase_data['elapsed'] = str(testcase_info.get('duration')) + 's'
+            testcase_id = self.extract_testcase_id(testcase_info['id'])
+            if not testcase_id:
+                logging.error('Testcase ID is bad formatted: "%s"', testcase_info['id'])
+                return None
+            testcase_data['case_id'] = testcase_id
+            data.append(testcase_data)
+
+        return self.send_post(API_ADD_RESULT_CASES_URL.format(run_id=testrun_id), {'results': data})
 
     def is_testrun_available(self, testrun_id):
         """ Ask if Test Run is available in TestRail.

@@ -33,17 +33,21 @@ logging.getLogger().addHandler(CONSOLE_HANDLER)
 class TestRailResultVisitor(ResultVisitor):
     """ Implement a `Visitor` that retrieves TestRail ID from Robot Framework Result """
 
-    def __init__(self):
+    def __init__(self, tag_prefix):
         """ Init """
+        if not isinstance(tag_prefix, str):
+            raise ValueError("tag_prefix should be of type str, got %s" % type(tag_prefix))
+
         self.result_testcase_list = []
+        self.tag_prefix = tag_prefix
 
     def end_suite(self, suite):
         """ Called when suite end """
-        for _suite, test, test_case_id in self._get_test_case_id_from_suite(suite):
+        for _suite, test, test_case_id in self._get_test_case_id_from_suite(suite, self.tag_prefix):
             self._append_testrail_result(_suite, test, test_case_id)
 
     @staticmethod
-    def _get_test_case_id_from_suite(suite):
+    def _get_test_case_id_from_suite(suite, tag_prefix):
         """ Retrieve list of Test Case ID from a suite
             Manage both case: ID in metadata or in tags.
         """
@@ -56,7 +60,7 @@ class TestRailResultVisitor(ResultVisitor):
                 break    # We only take the first ID found
         # Retrieve test_case_ids from tags
         for test in suite.tests:
-            test_case_ids_from_tags = TestRailResultVisitor._get_test_case_ids_from_tags(test.tags)
+            test_case_ids_from_tags = TestRailResultVisitor._get_test_case_ids_from_tags(test.tags, tag_prefix)
             if test_case_ids_from_tags:
                 for tcid in test_case_ids_from_tags:
                     result.append((test.name, test, tcid))
@@ -68,12 +72,13 @@ class TestRailResultVisitor(ResultVisitor):
         return result
 
     @staticmethod
-    def _get_test_case_ids_from_tags(tags):
+    def _get_test_case_ids_from_tags(tags, tag_prefix):
         """ Retrieve all test case tags found in the list """
+        prefix = "%s=" % tag_prefix
         test_case_list = []
         for tag in tags:
-            if re.findall("(test_case_id=[C]?[0-9]+)", tag):
-                test_case_list.append(tag[len('test_case_id='):])
+            if re.findall("(%s[C]?[0-9]+)" % prefix, tag):
+                test_case_list.append(tag[len(prefix):])
         return test_case_list
 
     def _append_testrail_result(self, name, test, testcase_id):
@@ -99,10 +104,10 @@ class TestRailResultVisitor(ResultVisitor):
         })
 
 
-def get_testcases(xml_robotfwk_output):
+def get_testcases(xml_robotfwk_output, tag_prefix):
     """ Return the list of Testcase ID with status """
     result = ExecutionResult(xml_robotfwk_output, include_keywords=False)
-    visitor = TestRailResultVisitor()
+    visitor = TestRailResultVisitor(tag_prefix)
     result.visit(visitor)
     return visitor.result_testcase_list
 
@@ -216,6 +221,9 @@ def options():
         '--tr-dont-publish-blocked',
         action='store_true',
         help='Do not publish results of "blocked" testcases in TestRail.')
+    parser.add_argument(
+        '--tag-prefix', dest='tag_prefix', default='test_case_id', help='Tag prefix to use if extracting testrail ID from tags. Default = \'test_case_id\''
+    )
 
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument(
@@ -246,7 +254,7 @@ if __name__ == '__main__':
     # Manage options
     ARGUMENTS = options()
 
-    TESTCASES = get_testcases(ARGUMENTS.xml_robotfwk_output[0].name)
+    TESTCASES = get_testcases(ARGUMENTS.xml_robotfwk_output[0].name, ARGUMENTS.tag_prefix)
 
     if ARGUMENTS.dryrun:
         pretty_print(TESTCASES)

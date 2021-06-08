@@ -54,12 +54,13 @@ class TestRailResultVisitor(ResultVisitor):
             if metadata == 'TEST_CASE_ID':
                 testcase_id = suite.metadata['TEST_CASE_ID']
                 break    # We only take the first ID found
-        # Retrieve test_case_id from tags
+        # Retrieve test_case_ids from tags
         for test in suite.tests:
-            test_case_id_from_tags = TestRailResultVisitor._get_test_case_id_from_tags(test.tags)
-            if test_case_id_from_tags:
-                result.append((test.name, test, test_case_id_from_tags))
-                logging.debug("Use TestRail ID from tag: ID = %s", test_case_id_from_tags)
+            test_case_ids_from_tags = TestRailResultVisitor._get_test_case_ids_from_tags(test.tags)
+            if test_case_ids_from_tags:
+                for tcid in test_case_ids_from_tags:
+                    result.append((test.name, test, tcid))
+                    logging.debug("Use TestRail ID from tag: ID = %s", tcid)
             else:
                 if testcase_id:
                     result.append((suite.name, test, testcase_id))
@@ -67,11 +68,13 @@ class TestRailResultVisitor(ResultVisitor):
         return result
 
     @staticmethod
-    def _get_test_case_id_from_tags(tags):
-        """ Retrieve first Test Case ID found in tag list """
+    def _get_test_case_ids_from_tags(tags):
+        """ Retrieve all test case tags found in the list """
+        test_case_list = []
         for tag in tags:
             if re.findall("(test_case_id=[C]?[0-9]+)", tag):
-                return tag[len('test_case_id='):]
+                test_case_list.append(tag[len('test_case_id='):])
+        return test_case_list
 
     def _append_testrail_result(self, name, test, testcase_id):
         """ Append a result in TestRail format """
@@ -98,7 +101,7 @@ class TestRailResultVisitor(ResultVisitor):
 
 def get_testcases(xml_robotfwk_output):
     """ Return the list of Testcase ID with status """
-    result = ExecutionResult(xml_robotfwk_output)
+    result = ExecutionResult(xml_robotfwk_output, include_keywords=False)
     visitor = TestRailResultVisitor()
     result.visit(visitor)
     return visitor.result_testcase_list
@@ -139,23 +142,11 @@ def publish_results(api, testcases, run_id=0, plan_id=0, version='', publish_blo
                     testcase for testcase in testcases
                     if api.extract_testcase_id(testcase.get('id')) not in blocked_tests_list
                 ]
-
-            for testcase in testcases:
-                if version:
-                    testcase['version'] = version
-                try:
-                    api.add_result(run_id, testcase)
-                    count += 1
-                    pretty_print_testcase(testcase)
-                    logging.debug('{id}\t{status}\t{name}\t'.format(**testcase))
-                    print()
-                except testrail.APIError as error:
-                    if 'No (active) test found for the run/case combination' not in str(error):
-                        pretty_print_testcase(testcase, str(error))
-                        logging.debug('{id}\t{status}\t{name}\tnot published'.format(**testcase))
-                        print()
-                time.sleep(0.25)
-            logging.info('%d result(s) published in Test Run #%d.', count, run_id)
+            try:
+                result = api.add_results(run_id, version, testcases)
+                logging.info('%d result(s) published in Test Run #%d.', len(result), run_id)
+            except testrail.APIError:
+                logging.exception('Error while publishing results')
         else:
             logging.error('Test Run #%d is is not available', run_id)
             return False

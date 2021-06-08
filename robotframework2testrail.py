@@ -30,10 +30,13 @@ CONSOLE_HANDLER.setFormatter(logging.Formatter('%(message)s'))
 logging.getLogger().addHandler(CONSOLE_HANDLER)
 
 
+DEFAULT_TAG_PREFIX = "test_case_id"
+
+
 class TestRailResultVisitor(ResultVisitor):
     """ Implement a `Visitor` that retrieves TestRail ID from Robot Framework Result """
 
-    def __init__(self, tag_prefix):
+    def __init__(self, tag_prefix=DEFAULT_TAG_PREFIX):
         """ Init """
         if not isinstance(tag_prefix, str):
             raise ValueError("tag_prefix should be of type str, got %s" % type(tag_prefix))
@@ -222,7 +225,7 @@ def options():
         action='store_true',
         help='Do not publish results of "blocked" testcases in TestRail.')
     parser.add_argument(
-        '--tag-prefix', dest='tag_prefix', default='test_case_id', help='Tag prefix to use if extracting testrail ID from tags. Default = \'test_case_id\''
+        '--tag-prefix', dest='tag_prefix', default=DEFAULT_TAG_PREFIX, help='Tag prefix to use if extracting testrail ID from tags. Default = \'test_case_id\''
     )
 
     group = parser.add_mutually_exclusive_group(required=True)

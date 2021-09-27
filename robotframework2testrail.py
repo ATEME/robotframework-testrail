@@ -121,9 +121,17 @@ def publish_results(api, testcases, run_id=0, plan_id=0, version='', publish_blo
     """
     if run_id:
         if api.is_testrun_available(run_id):
-            count = 0
             logging.info('Publish in Test Run #%d', run_id)
-            testcases_in_testrun_list = api.get_tests(run_id)
+            test_offset = 0
+            tests_requested = 100
+            tests_left = True
+            testcases_in_testrun_list = []
+            while(tests_left):
+                    testcases_from_testrail = api.get_tests(run_id, tests_requested, test_offset)
+                    if (testcases_from_testrail['size'] == 0):
+                            break
+                    testcases_in_testrun_list += testcases_from_testrail['tests']
+                    test_offset += (testcases_from_testrail['size'])
 
             # Filter tests present in Test Run
             case_id_in_testrun_list = [str(tc['case_id']) for tc in testcases_in_testrun_list]

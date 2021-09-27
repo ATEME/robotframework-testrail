@@ -10,13 +10,13 @@ API_ADD_RESULT_CASE_URL = 'add_result_for_case/{run_id}/{case_id}'
 API_ADD_RESULT_CASES_URL = 'add_results_for_cases/{run_id}'
 API_GET_RUN_URL = 'get_run/{run_id}'
 API_GET_PLAN_URL = 'get_plan/{plan_id}'
-API_GET_TESTS_URL = 'get_tests/{run_id}'
+API_GET_TESTS_URL = 'get_tests/{run_id}&limit={limit}&offset={offset}'
 
 ROBOTFWK_TO_TESTRAIL_STATUS = {
     "PASS": 1,
+    "SKIP": 4,
     "FAIL": 5,
 }
-
 
 class TestRailApiUtils(testrail.APIClient):
     """ Class adding facilities to manipulate Testrail API """
@@ -131,13 +131,16 @@ class TestRailApiUtils(testrail.APIClient):
 
         return testcase_id
 
-    def get_tests(self, testrun_id):
-        """ Return the list of tests containing in a Test Run.
+    def get_tests(self, testrun_id, testcase_limit, testcase_offset):
+        """ Return the list of tests containing in a Test Run,
+            starting at testcase_offset and returning max testcase_limit tests
 
         :param testrun_id: TestRail ID of the Test Run
+        :param testcase_limit: max tests to return for request
+        :param testcase_offset: start offset for request
 
         """
         try:
-            return self.send_get(API_GET_TESTS_URL.format(run_id=testrun_id))
+            return self.send_get(API_GET_TESTS_URL.format(run_id=testrun_id, limit=testcase_limit, offset=testcase_offset))
         except testrail.APIError as error:
             logging.error(error)

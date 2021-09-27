@@ -131,7 +131,7 @@ class TestRailApiUtils(testrail.APIClient):
 
         return testcase_id
 
-    def get_tests(self, testrun_id):
+    def get_tests(self, testrun_id, testcase_limit, testcase_offset):
         """ Return the list of tests containing in a Test Run,
             starting at testcase_offset and returning max testcase_limit tests
 
